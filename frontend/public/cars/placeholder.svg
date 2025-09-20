@@ -1,0 +1,15 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="300" fill="#F5F5F5"/>
+<path d="M175 150H225V175H175V150Z" fill="#D9D9D9"/>
+<path d="M160 160H240V165H160V60Z" fill="#D9D9D9"/>
+<circle cx="185" cy="185" r="15" fill="#D9D9D9"/>
+<circle cx="215" cy="185" r="15" fill="#D9D9D9"/>
+<text x="200" y="210" text-anchor="middle" fill="#999999" font-family="Arial" font-size="14">Araç Resmi</text>
+</svg>
+
+
+
+
+
+
+

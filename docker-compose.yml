@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mcangilmotors_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: mustafa_cangil_motors
+      MYSQL_USER: mcangilmotors
+      MYSQL_PASSWORD: mcangilmotors123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/prisma/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - mcangilmotors_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mcangilmotors_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://mcangilmotors:mcangilmotors123@mysql:3306/mustafa_cangil_motors
+      JWT_SECRET: your-super-secret-jwt-key-here
+      JWT_EXPIRES_IN: 7d
+      PORT: 3001
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend/public/uploads:/app/public/uploads
+    networks:
+      - mcangilmotors_network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mcangilmotors_frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - mcangilmotors_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: mcangilmotors_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./frontend/public:/usr/share/nginx/html
+      - ./backend/public/uploads:/usr/share/nginx/html/uploads
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - mcangilmotors_network
+
+volumes:
+  mysql_data:
+
+networks:
+  mcangilmotors_network:
+    driver: bridge
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://mcangilmotors.com/sitemap.xml
+
+# Disallow admin panel
+Disallow: /admin/
+
+# Allow all other content
+Allow: /tr/
+Allow: /en/
+Allow: /ar/
+Allow: /ru/
+
+# Crawl delay for better server performance
+Crawl-delay: 1
+
+
+
+
+
+
+
+
+

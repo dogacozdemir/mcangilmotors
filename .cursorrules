@@ -1,0 +1,278 @@
+# .cursorrules
+# Mustafa Cangil Motors - Cursor project rules
+# Bu dosya Cursor'un proje genel kurallarını, teknolojik tercihleri ve veri şemasını içerir.
+# Proje: Tek galeri, çok dilli, premium oto-galeri sitesi (KKTC)
+
+meta:
+  project_name: "Mustafa Cangil Motors - Car Gallery"
+  owner: "Mustafa Cangil Motors"
+  primary_color: "#D3AF77"
+  dark_color: "#333333"
+  black: "#000000"
+  white: "#FFFFFF"
+  timezone: "Europe/Istanbul"
+  locale_priority: ["tr", "en", "ar", "ru"]
+
+rules:
+  # Tech stack
+  frontend:
+    framework: "Next.js (App Router)"
+    styling: "TailwindCSS + shadcn/ui"
+    image_handling: "next/image + sharp (server-side optimization)"
+    i18n_lib: "next-intl"  # url-prefix approach
+    url_prefixes: ["/tr", "/en", "/ar", "/ru"]
+    seo_requirements: true
+    performance_goal: "Lighthouse >= 90"
+    rtl_support: true  # Arabic must render RTL
+  backend:
+    language: "Node.js"
+    framework_options: ["Express", "NestJS"]  # prefer Express for simplicity, NestJS optional
+    database: "MySQL"
+    orm: "Prisma"
+    auth: "JWT for admin; admin roles (admin, editor)"
+    file_storage: "VPS local storage (public/uploads) with nginx cache; optional Cloudflare"
+  admin:
+    type: "Custom React Admin (Tailwind + shadcn/ui)"
+    features: [
+      "Manage Cars (CRUD) with translations + images",
+      "Manage Categories (standard, luxury, classic)",
+      "Manage Blog (CRUD) with translations",
+      "Manage Customers (CRUD)",
+      "Manage Offers/Leads (CRUD + status)",
+      "Manage Pages (static content) with translations",
+      "SEO fields per record (title, description, keywords, slug)",
+      "Settings (social links, phone, whatsapp)"
+    ]
+    speed_vs_control: "Control preferred; custom admin"
+  images:
+    store_on_vps: true
+    image_paths: "/public/uploads/cars/..."
+    optimizations: ["serve WebP fallback", "lazy load", "responsive srcset", "cache headers"]
+  hosting:
+    frontend_deploy: ["Vercel (optional)", "VPS with nginx + pm2"]
+    backend_deploy: "VPS (Docker recommended) behind nginx reverse proxy"
+    cdn_recommendation: "Cloudflare optional (strongly recommended)"
+  seo_ai:
+    structured_data: "schema.org (Car, Offer, Article)"
+    hreflang: true
+    per_language_meta: true
+    ai_features: "Admin-side AI helpers for meta suggestions, blog summaries (GPT integration optional)"
+
+database_schema:
+  description: "Canonical MySQL schema for the project - Cursor must use this schema when generating models, migrations, API endpoints, and admin forms."
+  sql: |
+    -- categories
+    CREATE TABLE categories (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- cars
+    CREATE TABLE cars (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      category_id INT,
+      make VARCHAR(100),
+      model VARCHAR(100),
+      year INT,
+      mileage INT,
+      fuel_type VARCHAR(50),
+      transmission VARCHAR(50),
+      color VARCHAR(50),
+      engine VARCHAR(100),
+      price DECIMAL(12,2),
+      featured BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+    );
+
+    -- car images
+    CREATE TABLE car_images (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      car_id INT,
+      image_path VARCHAR(255),
+      is_main BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
+    );
+
+    -- car translations (multi-language content & SEO)
+    CREATE TABLE car_translations (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      car_id INT,
+      lang VARCHAR(5),
+      title VARCHAR(255),
+      description TEXT,
+      seo_title VARCHAR(255),
+      seo_description TEXT,
+      seo_keywords TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE,
+      UNIQUE KEY(car_id, lang)
+    );
+
+    -- blog posts (meta + global)
+    CREATE TABLE blog_posts (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      slug VARCHAR(255) UNIQUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
+    -- blog translations
+    CREATE TABLE blog_translations (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      post_id INT,
+      lang VARCHAR(5),
+      title VARCHAR(255),
+      content TEXT,
+      seo_title VARCHAR(255),
+      seo_description TEXT,
+      seo_keywords TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+      UNIQUE KEY(post_id, lang)
+    );
+
+    -- customers
+    CREATE TABLE customers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      full_name VARCHAR(150),
+      phone VARCHAR(50),
+      email VARCHAR(150),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- offers / leads
+    CREATE TABLE offers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      car_id INT,
+      customer_id INT,
+      message TEXT,
+      status ENUM('pending','contacted','closed') DEFAULT 'pending',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE SET NULL,
+      FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+    );
+
+    -- pages (static)
+    CREATE TABLE pages (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      slug VARCHAR(100) UNIQUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
+
+    -- page translations
+    CREATE TABLE page_translations (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      page_id INT,
+      lang VARCHAR(5),
+      title VARCHAR(255),
+      content TEXT,
+      seo_title VARCHAR(255),
+      seo_description TEXT,
+      seo_keywords TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+      UNIQUE KEY(page_id, lang)
+    );
+
+    -- settings (singleton row expected)
+    CREATE TABLE settings (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      instagram VARCHAR(255),
+      facebook VARCHAR(255),
+      whatsapp VARCHAR(50),
+      phone VARCHAR(50),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+conventions:
+  api:
+    base_path: "/api"
+    modules: ["cars","categories","car-images","car-translations","blogs","blog-translations","customers","offers","pages","page-translations","settings","auth"]
+    restful: true
+    pagination: "cursor-based or limit/offset (implement cursor-based for inventory endpoints)"
+  urls:
+    car_detail: "/[lang]/cars/[slug|id]"
+    inventory: "/[lang]/inventory"
+    blog: "/[lang]/blog/[slug]"
+  security:
+    admin_auth: "JWT + role-based guard"
+    rate_limit: true  # for public endpoints
+  i18n:
+    url_scheme: "prefix (/tr,/en,/ar,/ru)"
+    hreflang: true
+
+notes:
+  - "Arabic must be rendered RTL and have correct direction attributes: <html lang='ar' dir='rtl'>"
+  - "SEO: every page must expose canonical, alternate hreflang links, and JSON-LD schema where applicable."
+  - "Image uploads: store originals under uploads/originals and generate optimized versions on upload."
+  - "Make forms (offer/test-drive) store leads to 'offers' and create/update customer entry (dedupe by phone)."
+  - "Admin: implement bulk image uploader, drag-sort for images, WYSIWYG editor for blog/page translations."
+
+
+#Project Specific Prompts
+You are a code-generation assistant building a production-grade, multi-language (TR, EN, AR, RU) premium car gallery website for "Mustafa Cangil Motors" (single-tenant, based in Northern Cyprus).
+
+Follow these hard constraints and deliverables exactly:
+
+HARD CONSTRAINTS
+1. Frontend must be Next.js (App Router). Use TailwindCSS + shadcn/ui for components. Ensure responsive, accessible, and pixel-clean UI inspired by carwow.co.uk (search/filter UX) and f1rstmotors.com (luxury visuals).
+2. Multi-language: Use next-intl. Language prefixes /tr, /en, /ar, /ru. Arabic must be RTL. Include hreflang tags and per-language canonical URLs.
+3. Backend: Node.js (Express or NestJS) + MySQL. Use Prisma as ORM. JWT-based admin auth with role guards (admin, editor).
+4. Admin: Custom React admin (Tailwind + shadcn/ui). No external CMS. Admin must expose CRUD for Cars, Categories, CarImages, CarTranslations, BlogPosts, BlogTranslations, Pages, PageTranslations, Customers, Offers, Settings.
+5. File storage: images stored on VPS under `/public/uploads/...`. On upload, generate optimized variants (webp, different sizes) using `sharp`. Serve via nginx with cache headers; support lazy loading and responsive `srcset`.
+6. SEO: Per-language meta (title, description, keywords), JSON-LD (schema.org Car, Offer, Article), hreflang, canonical URLs. Aim for Lighthouse >= 90.
+7. Routing & URLs: Use clean, SEO-friendly slugs. Car detail: `/{lang}/cars/{slug}` or fallback to id if slug missing.
+8. Performance: Code-splitting, image optimization, critical CSS, prefetch important routes.
+9. DB schema: EXACTLY use the provided MySQL schema (categories, cars, car_images, car_translations, blog_posts, blog_translations, customers, offers, pages, page_translations, settings). Generate Prisma schema, migrations, seed data examples.
+10. API: Provide REST endpoints under `/api/[module]` for all modules. Inventory listing endpoints must support advanced filters (make, model, year range, price range, mileage range, category, fuel_type, transmission), sorting, and cursor-based pagination.
+11. Admin UX: For translations, admin should show a single edit form with language tabs for each record (TR, EN, AR, RU). For images, support drag-drop, mark main image, reorder. For offers, provide status flow (pending -> contacted -> closed).
+12. Security & infra: Provide Dockerfile(s) + docker-compose for local dev (app + db). Provide Nginx reverse-proxy sample config and pm2 or Docker deployment notes. Recommend Cloudflare but do not require it.
+13. Phone & socials (seed settings): instagram=https://www.instagram.com/mcangilmotors , facebook=https://www.facebook.com/mustafacangilmotors/?locale=tr_TR , whatsapp=+905338551166 , phone=+90 533 855 11 66
+14. Colors & branding: primary #D3AF77, dark #333333, black #000000, white #FFFFFF.
+15. Categories: include sample categories: "Standart", "Lüks", "Klasik".
+16. Everything must be localized: admin labels, validation messages, date formats, and sample seed content must include entries in TR/EN/AR/RU.
+
+DELIVERABLES (what you should generate on demand)
+- Prisma schema (based on provided SQL), migrations, and seed script with example data (3 cars: one each category; translations for each language).
+- Backend: Express (or NestJS) app with module-based routes under `/api` matching the `cursorrules` modules. Controllers, services, DTOs (or equivalent) for CRUD + filters + pagination. Include input validation and sanitization.
+- Frontend: Next.js app pages/components:
+  * Homepage with hero slider, quick search bar, featured cars
+  * Inventory listing with advanced filters and paginated results
+  * Car detail page with gallery, specs, contact/offer form
+  * Car comparison flow (select up to 3 cars -> compare)
+  * Blog listing & article pages (multi-language)
+  * Contact page (map + WhatsApp + phone)
+- Admin: Custom React admin:
+  * CRUD screens for Cars (with language tabs), Blog, Pages, Customers, Offers, Settings
+  * Image uploader + optimization flow
+  * Role-based login
+- DevOps: Dockerfile(s), docker-compose.yml, sample Nginx config, instructions to deploy to VPS.
+- Tests: basic unit tests for critical backend routes and a couple of frontend integration smoke tests.
+- Documentation: README with setup, env vars, deployment steps, how to run migrations/seed, and how to extend translations.
+
+CODING STANDARDS
+- Clean, modular, well-commented code. Use TypeScript for backend and frontend.
+- Follow accessibility best practices (semantic HTML, alt tags on images).
+- Use ESLint + Prettier configs.
+- Use feature flags where appropriate (e.g., 360-view, comparison) and make them configurable in settings.
+
+BEHAVIOR
+- Always generate code that matches the database schema and rules in `.cursorrules`.
+- When generating API endpoints, include OpenAPI (Swagger) spec.
+- When generating frontend pages, include SEO meta tags per locale and JSON-LD where relevant.
+- When generating admin forms, include validation and helpful error messages localized per language.
+- If asked to scaffold a feature, include unit tests and example seed data for that feature.
+
+If you understand these constraints, begin by generating:
+1) Prisma schema + migration SQL for the given MySQL schema
+2) Backend folder structure and sample controller/route for `cars` with filter + pagination implemented
+3) Next.js frontend folder structure + Inventory page component skeleton with filters UI
+
+After those are ready, continue scaffolding the rest of the deliverables in the same pattern until the full project is scaffolded and runnable.
+
+IMPORTANT: never deviate from the database schema without explicit instruction. Use the provided social/contact details and branding colors in seed data and UI.
