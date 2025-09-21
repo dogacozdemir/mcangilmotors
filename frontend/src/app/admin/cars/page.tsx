@@ -18,6 +18,8 @@ interface Car {
   transmission: string;
   color: string;
   engine: string;
+  bodyType?: string;
+  plateStatus?: string;
   price: number;
   featured: boolean;
   categoryId: number;
@@ -73,6 +75,8 @@ export default function CarsPage() {
     transmission: '',
     color: '',
     engine: '',
+    bodyType: '',
+    plateStatus: '',
     price: '',
     featured: false,
     categoryId: '',
@@ -188,6 +192,10 @@ export default function CarsPage() {
         status: sanitizedFormData.isSold ? 'sold' : sanitizedFormData.isIncoming ? 'incoming' : 'available',
         // Update main price if car is sold and sold price is provided, otherwise use original price
         price: sanitizedFormData.isSold && sanitizedFormData.soldPrice ? parseFloat(sanitizedFormData.soldPrice) : (sanitizedFormData.price ? parseFloat(sanitizedFormData.price) : undefined),
+        // Include new fields
+        bodyType: sanitizedFormData.bodyType || undefined,
+        plateStatus: sanitizedFormData.plateStatus || undefined,
+        coverImage: sanitizedFormData.coverImage || undefined,
       };
 
       if (editingCar) {
@@ -218,6 +226,8 @@ export default function CarsPage() {
           transmission: '',
           color: '',
           engine: '',
+          bodyType: '',
+          plateStatus: '',
           price: '',
           featured: false,
           categoryId: '',
@@ -289,6 +299,8 @@ export default function CarsPage() {
       transmission: car.transmission || '',
       color: car.color || '',
       engine: car.engine || '',
+      bodyType: car.bodyType || '',
+      plateStatus: car.plateStatus || '',
       price: car.price ? car.price.toString() : '',
       featured: car.featured,
       categoryId: car.categoryId ? car.categoryId.toString() : '',
@@ -719,6 +731,8 @@ export default function CarsPage() {
                       transmission: '',
                       color: '',
                       engine: '',
+                      bodyType: '',
+                      plateStatus: '',
                       price: '',
                       featured: false,
                       categoryId: '',
