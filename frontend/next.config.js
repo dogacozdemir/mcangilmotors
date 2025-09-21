@@ -31,19 +31,34 @@ const nextConfig = {
         port: '3001',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'mcangilmotors.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.mcangilmotors.com',
+        pathname: '/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async rewrites() {
+    // In production, these rewrites should point to the actual domain
+    const backendUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      : 'http://localhost:3001';
+      
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3001/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: 'http://localhost:3001/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
       },
     ];
   },

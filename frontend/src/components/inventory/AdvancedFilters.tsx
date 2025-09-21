@@ -67,18 +67,13 @@ export function AdvancedFilters({
   const [localPriceMax, setLocalPriceMax] = useState(filters.price_max || '');
 
   // Debounce function for price inputs
-  const debouncedPriceChange = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return (key: string, value: string) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          onFilterChange(key, value);
-        }, 500); // 500ms delay
-      };
-    })(),
-    [onFilterChange]
-  );
+  const debouncedPriceChange = useCallback((key: string, value: string) => {
+    const timeoutId = setTimeout(() => {
+      onFilterChange(key, value);
+    }, 500); // 500ms delay
+    
+    return () => clearTimeout(timeoutId);
+  }, [onFilterChange]);
 
   const handleFilterChange = (key: string, value: string) => {
     // "all" değerini boş string'e çevir

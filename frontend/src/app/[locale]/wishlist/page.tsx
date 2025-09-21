@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { CarCard } from '@/components/ui/CarCard';
+import CarCard from '@/components/ui/CarCard';
 import { Heart, ArrowLeft, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 

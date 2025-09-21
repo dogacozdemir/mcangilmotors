@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -35,11 +35,7 @@ export default function AboutPage() {
   const [sections, setSections] = useState<AboutSection[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, [locale]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [pageData, sectionsData] = await Promise.all([
         apiClient.getPage('hakkimizda', locale),
@@ -52,7 +48,11 @@ export default function AboutPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (

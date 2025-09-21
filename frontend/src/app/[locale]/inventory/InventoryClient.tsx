@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
-import { CarCard } from '@/components/ui/CarCard';
+import CarCard from '@/components/ui/CarCard';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Grid, List, SlidersHorizontal, Scale, Search, X, Filter, Zap } from 'lucide-react';
 import apiClient from '@/lib/api';
@@ -129,7 +129,7 @@ export default function InventoryClient({ params }: InventoryClientProps) {
       queryParams.append('limit', '12');
 
       // Direct API call to avoid caching issues
-      const response = await fetch(`http://localhost:3001/api/cars?${queryParams.toString()}`);
+      const response = await fetch(`/api/cars?${queryParams.toString()}`);
       const carsResponse = await response.json();
       
       console.log('Direct API Response:', carsResponse);
@@ -143,7 +143,7 @@ export default function InventoryClient({ params }: InventoryClientProps) {
       // Load categories separately if needed
       if (categories.length === 0) {
         try {
-          const categoriesResponse = await fetch('http://localhost:3001/api/categories');
+          const categoriesResponse = await fetch('/api/categories');
           const categoriesData = await categoriesResponse.json();
           setCategories(categoriesData || []);
         } catch (err) {

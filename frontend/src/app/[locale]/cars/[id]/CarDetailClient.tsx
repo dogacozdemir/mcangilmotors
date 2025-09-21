@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -54,11 +54,7 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  useEffect(() => {
-    loadCar();
-  }, [carId, locale]);
-
-  const loadCar = async () => {
+  const loadCar = useCallback(async () => {
     try {
       const data = await apiClient.getCar(Number(carId), locale) as Car;
       setCar(data);
@@ -75,7 +71,11 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [carId, locale]);
+
+  useEffect(() => {
+    loadCar();
+  }, [loadCar]);
 
   if (loading) {
     return (

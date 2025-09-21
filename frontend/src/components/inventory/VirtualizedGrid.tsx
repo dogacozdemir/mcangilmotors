@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useEffect, useState } from 'react';
-import { CarCard } from '@/components/ui/CarCard';
+import CarCard from '@/components/ui/CarCard';
 
 interface Car {
   id: number;

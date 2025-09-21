@@ -109,12 +109,7 @@ export default function SoldCarsPage() {
   const [sortBy, setSortBy] = useState('soldDate');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Load data
-  useEffect(() => {
-    loadData();
-  }, [locale]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [carsData, categoriesData] = await Promise.all([
@@ -130,7 +125,12 @@ export default function SoldCarsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  // Load data
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Filter and sort cars
   const filteredAndSortedCars = useMemo(() => {

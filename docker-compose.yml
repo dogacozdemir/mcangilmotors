@@ -32,7 +32,8 @@ services:
       JWT_SECRET: your-super-secret-jwt-key-here
       JWT_EXPIRES_IN: 7d
       PORT: 3001
-      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL: https://mcangilmotors.com
+      CORS_ORIGIN: https://mcangilmotors.com,https://www.mcangilmotors.com
     ports:
       - "3001:3001"
     depends_on:
@@ -51,7 +52,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_URL: https://mcangilmotors.com
+      NEXT_PUBLIC_UPLOAD_URL: https://mcangilmotors.com
     ports:
       - "3000:3000"
     depends_on:

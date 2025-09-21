@@ -5,6 +5,7 @@ import { Car, Heart, ArrowRight, ChevronLeft, ChevronRight, Eye, Scale } from 'l
 import Image from 'next/image';
 import Link from 'next/link';
 import { OptimizedImage } from './OptimizedImage';
+import { getCarImageUrl } from '@/lib/urlUtils';
 
 interface CarCardProps {
   car: {
@@ -46,7 +47,7 @@ interface CarCardProps {
   showIncomingBadge?: boolean;
 }
 
-export function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInComparison = false, onWishlist, isInWishlist = false, isSoldCar = false, showIncomingBadge = false }: CarCardProps) {
+function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInComparison = false, onWishlist, isInWishlist = false, isSoldCar = false, showIncomingBadge = false }: CarCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const formatPrice = (price: number) => {
@@ -81,7 +82,7 @@ export function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare
     // Add cover image if exists
     if (car.coverImage) {
       images.push({
-        imagePath: car.coverImage.startsWith('http') ? car.coverImage : `http://localhost:3001${car.coverImage}`,
+        imagePath: getCarImageUrl(car),
         isMain: true,
         sortOrder: 0,
         altText: `${car.year} ${car.make} ${car.model}`
@@ -91,7 +92,7 @@ export function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare
     // Add other images
     if (car.images && car.images.length > 0) {
       car.images.forEach((img) => {
-        const imagePath = img.imagePath.startsWith('http') ? img.imagePath : `http://localhost:3001${img.imagePath}`;
+        const imagePath = getCarImageUrl({ ...car, coverImage: img.imagePath });
         images.push({
           imagePath,
           isMain: img.isMain,
@@ -571,3 +572,5 @@ export function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare
     </article>
   );
 }
+
+export default CarCard;

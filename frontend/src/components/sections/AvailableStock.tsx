@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Car, Sparkles, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CarCard } from '@/components/ui/CarCard';
+import CarCard from '@/components/ui/CarCard';
 import { useWishlist } from '@/contexts/WishlistContext';
 import Link from 'next/link';
 import apiClient from '@/lib/api';

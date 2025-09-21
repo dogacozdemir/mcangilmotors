@@ -1,5 +1,6 @@
 import { cache, CACHE_KEYS, CACHE_TTL } from './cache';
 import { useAPICache } from '@/hooks/useCache';
+import { getApiUrl } from './urlUtils';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 

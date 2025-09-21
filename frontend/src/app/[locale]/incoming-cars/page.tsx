@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { CarCard } from '@/components/ui/CarCard';
+import CarCard from '@/components/ui/CarCard';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { Grid, List, SlidersHorizontal, Scale, Search, X, Filter, Zap, Truck } from 'lucide-react';
 import apiClient from '@/lib/api';

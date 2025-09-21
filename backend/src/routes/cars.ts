@@ -444,9 +444,13 @@ router.put('/:id', csrfProtection, validateCar, handleValidationErrors, async (r
           price: Number(price),
           featured: Boolean(featured),
           categoryId: Number(categoryId),
-          status: status || "available",
+          status,
+          isSold: Boolean(isSold),
+          isIncoming: Boolean(isIncoming),
+          isReserved: Boolean(isReserved),
           soldAt: soldAt ? new Date(soldAt) : null,
           soldPrice: soldPrice ? Number(soldPrice) : null,
+          expectedArrival: expectedArrival ? new Date(expectedArrival) : null,
           ...(images && images.length > 0 && {
             images: {
               create: images.map((imagePath: string, index: number) => ({

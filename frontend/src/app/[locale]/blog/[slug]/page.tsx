@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -32,11 +32,7 @@ export default function BlogPostPage() {
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadPost();
-  }, [slug, locale]);
-
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     try {
       const data = await apiClient.getBlogPost(slug, locale) as BlogPost;
       setPost(data);
@@ -52,7 +48,11 @@ export default function BlogPostPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, locale]);
+
+  useEffect(() => {
+    loadPost();
+  }, [loadPost]);
 
   if (loading) {
     return (

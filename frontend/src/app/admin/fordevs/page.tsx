@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Code, Database, Globe, Shield, Zap, Smartphone, Search, Users, Car, Settings, BarChart3, Lock, Eye, CheckCircle, Star, ArrowRight, ExternalLink } from 'lucide-react';
@@ -175,9 +176,11 @@ export default function ForDevsPage() {
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl blur opacity-75"></div>
-                <img
+                <Image
                   src="/logo.png"
                   alt="Mustafa Cangil Auto Trading Ltd."
+                  width={48}
+                  height={48}
                   className="relative h-12 w-auto"
                 />
               </div>
