@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import prisma from '../config/database';
 import { validateCar, validateCarTranslation, handleValidationErrors, validateQueryParams } from '../middleware/validation';
 import { carsCache, invalidateCache } from '../middleware/cache';
-import { csrfProtection } from '../middleware/security';
 
 const router = express.Router();
 
@@ -309,7 +308,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create car
-router.post('/', csrfProtection, validateCar, handleValidationErrors, async (req: Request, res: Response) => {
+router.post('/', validateCar, handleValidationErrors, async (req: Request, res: Response) => {
   try {
     const { 
       make, 
@@ -393,7 +392,7 @@ router.post('/', csrfProtection, validateCar, handleValidationErrors, async (req
 });
 
 // Update car
-router.put('/:id', csrfProtection, validateCar, handleValidationErrors, async (req: Request, res: Response) => {
+router.put('/:id', validateCar, handleValidationErrors, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     console.log(`Updating car ${id} with data:`, req.body);
