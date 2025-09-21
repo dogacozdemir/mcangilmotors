@@ -260,7 +260,7 @@ router.get('/incoming', async (req, res) => {
             where: { lang: lang as string }
           }
         },
-        orderBy: { createdAt: 'desc' } // Sort by creation date
+        orderBy: { expectedArrival: 'asc' } // Sort by expected arrival date
       }),
       prisma.car.count({ where })
     ]);
@@ -351,9 +351,13 @@ router.post('/', csrfProtection, validateCar, handleValidationErrors, async (req
         price: Number(price),
         featured: Boolean(featured),
         categoryId: Number(categoryId),
-        status: status || "available",
+        status,
+        isSold: Boolean(isSold),
+        isIncoming: Boolean(isIncoming),
+        isReserved: Boolean(isReserved),
         soldAt: soldAt ? new Date(soldAt) : null,
         soldPrice: soldPrice ? Number(soldPrice) : null,
+        expectedArrival: expectedArrival ? new Date(expectedArrival) : null,
         images: {
           create: images.map((imagePath: string, index: number) => ({
             imagePath,
