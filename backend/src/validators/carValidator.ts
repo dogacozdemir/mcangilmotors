@@ -3,27 +3,41 @@ import Joi from 'joi';
 import { XSSProtection } from '../utils/sanitizer';
 
 const carSchema = Joi.object({
-  categoryId: Joi.number().integer().optional(),
+  // Database field names (snake_case)
+  category_id: Joi.number().integer().optional(),
   make: Joi.string().max(100).optional(),
   model: Joi.string().max(100).optional(),
   year: Joi.number().integer().min(1900).max(new Date().getFullYear() + 1).optional(),
   mileage: Joi.number().integer().min(0).optional(),
-  fuelType: Joi.string().max(50).optional(),
+  fuel_type: Joi.string().max(50).optional(),
   transmission: Joi.string().max(50).optional(),
   color: Joi.string().max(50).optional(),
   engine: Joi.string().max(100).optional(),
+  body_type: Joi.string().max(50).optional(),
+  plate_status: Joi.string().max(20).optional(),
   price: Joi.number().precision(2).min(0).optional(),
   featured: Joi.boolean().optional(),
   status: Joi.string().valid('available', 'sold', 'incoming', 'reserved').optional(),
+  is_sold: Joi.boolean().optional(),
+  is_incoming: Joi.boolean().optional(),
+  is_reserved: Joi.boolean().optional(),
+  sold_at: Joi.string().optional(),
+  sold_price: Joi.number().precision(2).min(0).optional(),
+  expected_arrival: Joi.string().optional(),
+  cover_image: Joi.string().max(500).optional(),
+  images: Joi.array().items(Joi.string()).optional(),
+  translations: Joi.object().optional(),
+  
+  // Also accept camelCase for frontend compatibility
+  categoryId: Joi.number().integer().optional(),
+  fuelType: Joi.string().max(50).optional(),
+  coverImage: Joi.string().max(500).optional(),
   isSold: Joi.boolean().optional(),
   isIncoming: Joi.boolean().optional(),
   isReserved: Joi.boolean().optional(),
   soldAt: Joi.string().optional(),
   soldPrice: Joi.number().precision(2).min(0).optional(),
-  expectedArrival: Joi.string().optional(),
-  coverImage: Joi.string().optional(),
-  images: Joi.array().items(Joi.string()).optional(),
-  translations: Joi.object().optional()
+  expectedArrival: Joi.string().optional()
 });
 
 const carTranslationSchema = Joi.object({
