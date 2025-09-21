@@ -13,7 +13,17 @@ const carSchema = Joi.object({
   color: Joi.string().max(50).optional(),
   engine: Joi.string().max(100).optional(),
   price: Joi.number().precision(2).min(0).optional(),
-  featured: Joi.boolean().optional()
+  featured: Joi.boolean().optional(),
+  status: Joi.string().valid('available', 'sold', 'incoming', 'reserved').optional(),
+  isSold: Joi.boolean().optional(),
+  isIncoming: Joi.boolean().optional(),
+  isReserved: Joi.boolean().optional(),
+  soldAt: Joi.string().optional(),
+  soldPrice: Joi.number().precision(2).min(0).optional(),
+  expectedArrival: Joi.string().optional(),
+  coverImage: Joi.string().optional(),
+  images: Joi.array().items(Joi.string()).optional(),
+  translations: Joi.object().optional()
 });
 
 const carTranslationSchema = Joi.object({
