@@ -260,7 +260,7 @@ router.get('/incoming', async (req, res) => {
             where: { lang: lang as string }
           }
         },
-        orderBy: { expectedArrival: 'asc' } // Sort by expected arrival date
+        orderBy: { createdAt: 'desc' } // Sort by creation date
       }),
       prisma.car.count({ where })
     ]);
@@ -351,13 +351,9 @@ router.post('/', csrfProtection, validateCar, handleValidationErrors, async (req
         price: Number(price),
         featured: Boolean(featured),
         categoryId: Number(categoryId),
-        status,
-        isSold: Boolean(isSold),
-        isIncoming: Boolean(isIncoming),
-        isReserved: Boolean(isReserved),
+        status: status || "available",
         soldAt: soldAt ? new Date(soldAt) : null,
         soldPrice: soldPrice ? Number(soldPrice) : null,
-        expectedArrival: expectedArrival ? new Date(expectedArrival) : null,
         images: {
           create: images.map((imagePath: string, index: number) => ({
             imagePath,
@@ -444,13 +440,9 @@ router.put('/:id', csrfProtection, validateCar, handleValidationErrors, async (r
           price: Number(price),
           featured: Boolean(featured),
           categoryId: Number(categoryId),
-          status,
-          isSold: Boolean(isSold),
-          isIncoming: Boolean(isIncoming),
-          isReserved: Boolean(isReserved),
+          status: status || "available",
           soldAt: soldAt ? new Date(soldAt) : null,
           soldPrice: soldPrice ? Number(soldPrice) : null,
-          expectedArrival: expectedArrival ? new Date(expectedArrival) : null,
           ...(images && images.length > 0 && {
             images: {
               create: images.map((imagePath: string, index: number) => ({
@@ -533,7 +525,7 @@ router.get('/meta/makes', async (req, res) => {
       orderBy: { make: 'asc' }
     });
 
-    res.json(makes.map(car => car.make));
+    res.json(makes.map((car: { make: string | null }) => car.make).filter((make: string | null): make is string => make !== null));
   } catch (error) {
     console.error('Error fetching makes:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -554,7 +546,7 @@ router.get('/meta/models', async (req, res) => {
       orderBy: { model: 'asc' }
     });
 
-    res.json(models.map(car => car.model));
+    res.json(models.map((car: { model: string | null }) => car.model).filter((model: string | null): model is string => model !== null));
   } catch (error) {
     console.error('Error fetching models:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -571,7 +563,7 @@ router.get('/meta/body-types', async (req, res) => {
       orderBy: { bodyType: 'asc' }
     });
 
-    res.json(bodyTypes.map(car => car.bodyType));
+    res.json(bodyTypes.map((car: { bodyType: string | null }) => car.bodyType).filter((bodyType: string | null): bodyType is string => bodyType !== null));
   } catch (error) {
     console.error('Error fetching body types:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -588,7 +580,7 @@ router.get('/meta/plate-statuses', async (req, res) => {
       orderBy: { plateStatus: 'asc' }
     });
 
-    res.json(plateStatuses.map(car => car.plateStatus));
+    res.json(plateStatuses.map((car: { plateStatus: string | null }) => car.plateStatus).filter((plateStatus: string | null): plateStatus is string => plateStatus !== null));
   } catch (error) {
     console.error('Error fetching plate statuses:', error);
     res.status(500).json({ error: 'Internal server error' });

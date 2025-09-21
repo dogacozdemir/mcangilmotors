@@ -61,7 +61,7 @@ export const validateCar = (req: Request, res: Response, next: NextFunction) => 
     return res.status(400).json({
       success: false,
       message: 'Validation error',
-      details: error.details.map(detail => detail.message)
+      details: error.details.map((detail: any) => detail.message)
     });
   }
   
@@ -101,7 +101,7 @@ export const validateCarTranslation = (req: Request, res: Response, next: NextFu
     return res.status(400).json({
       success: false,
       message: 'Validation error',
-      details: error.details.map(detail => detail.message)
+      details: error.details.map((detail: any) => detail.message)
     });
   }
   
