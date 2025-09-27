@@ -208,51 +208,53 @@ router.get('/', timeout(15000), carsCache, async (req, res) => {
       const searchTerm = Array.isArray(search) ? search[0] : search;
       const sanitizedTerm = typeof searchTerm === 'string' ? searchTerm.replace(/[<>]/g, '') : '';
       
-      // For search queries, use raw SQL with ILIKE for case-insensitive search
+      // For search queries, use raw SQL with LIKE for case-insensitive search
       const searchQuery = `
         SELECT DISTINCT c.*, cat.name as category_name, cat.created_at as category_created_at, cat.updated_at as category_updated_at
-        FROM "Car" c
-        LEFT JOIN "Category" cat ON c."categoryId" = cat.id
+        FROM cars c
+        LEFT JOIN categories cat ON c.category_id = cat.id
         WHERE (
-          LOWER(c.make) LIKE LOWER($1) OR 
-          LOWER(c.model) LIKE LOWER($1) OR 
-          LOWER(c."fuelType") LIKE LOWER($1) OR 
-          LOWER(c.color) LIKE LOWER($1) OR 
-          LOWER(c.transmission) LIKE LOWER($1) OR 
-          LOWER(c.engine) LIKE LOWER($1) OR 
-          LOWER(c."bodyType") LIKE LOWER($1)
+          LOWER(c.make) LIKE LOWER(?) OR 
+          LOWER(c.model) LIKE LOWER(?) OR 
+          LOWER(c.fuel_type) LIKE LOWER(?) OR 
+          LOWER(c.color) LIKE LOWER(?) OR 
+          LOWER(c.transmission) LIKE LOWER(?) OR 
+          LOWER(c.engine) LIKE LOWER(?) OR 
+          LOWER(c.body_type) LIKE LOWER(?) OR
+          CAST(c.year AS CHAR) LIKE ?
         ) 
         AND c.status = 'available' 
-        AND c."isSold" = false 
-        AND c."isIncoming" = false 
-        AND c."isReserved" = false
-        ORDER BY c."createdAt" DESC
-        LIMIT $2 OFFSET $3
+        AND c.is_sold = false 
+        AND c.is_incoming = false 
+        AND c.is_reserved = false
+        ORDER BY c.created_at DESC
+        LIMIT ? OFFSET ?
       `;
       
       const countQuery = `
         SELECT COUNT(DISTINCT c.id)
-        FROM "Car" c
+        FROM cars c
         WHERE (
-          LOWER(c.make) LIKE LOWER($1) OR 
-          LOWER(c.model) LIKE LOWER($1) OR 
-          LOWER(c."fuelType") LIKE LOWER($1) OR 
-          LOWER(c.color) LIKE LOWER($1) OR 
-          LOWER(c.transmission) LIKE LOWER($1) OR 
-          LOWER(c.engine) LIKE LOWER($1) OR 
-          LOWER(c."bodyType") LIKE LOWER($1)
+          LOWER(c.make) LIKE LOWER(?) OR 
+          LOWER(c.model) LIKE LOWER(?) OR 
+          LOWER(c.fuel_type) LIKE LOWER(?) OR 
+          LOWER(c.color) LIKE LOWER(?) OR 
+          LOWER(c.transmission) LIKE LOWER(?) OR 
+          LOWER(c.engine) LIKE LOWER(?) OR 
+          LOWER(c.body_type) LIKE LOWER(?) OR
+          CAST(c.year AS CHAR) LIKE ?
         ) 
         AND c.status = 'available' 
-        AND c."isSold" = false 
-        AND c."isIncoming" = false 
-        AND c."isReserved" = false
+        AND c.is_sold = false 
+        AND c.is_incoming = false 
+        AND c.is_reserved = false
       `;
       
       const searchPattern = `%${sanitizedTerm}%`;
       
       const [carsResult, totalResult] = await Promise.all([
-        prisma.$queryRawUnsafe(searchQuery, searchPattern, limitNum, skip),
-        prisma.$queryRawUnsafe(countQuery, searchPattern)
+        prisma.$queryRawUnsafe(searchQuery, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, limitNum, skip),
+        prisma.$queryRawUnsafe(countQuery, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern)
       ]);
       
       cars = carsResult as any[];
