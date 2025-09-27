@@ -824,10 +824,11 @@ async function main() {
 
   console.log('✅ About page sections created');
 
-  // Create main about page
-  await prisma.page.create({
-    data: {
-      slug: 'hakkimizda',
+  // Create main about page (skip if already exists)
+  try {
+    await prisma.page.create({
+      data: {
+        slug: 'hakkimizda-main',
       translations: {
         create: [
           {
@@ -866,6 +867,9 @@ async function main() {
       }
     }
   });
+  } catch (error) {
+    console.log('ℹ️ About page already exists, skipping...');
+  }
 
   console.log('✅ Main about page created');
 
