@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CarImageUpload } from '@/components/ui/CarImageUpload';
+import { BulkUpload } from '@/components/admin/BulkUpload';
 import apiClient from '@/lib/api';
 import { FrontendXSSProtection } from '@/lib/sanitizer';
+import { cache } from '@/lib/cache';
 
 interface Car {
   id: number;
@@ -44,9 +46,6 @@ interface Car {
     lang: string;
     title: string;
     description: string;
-    seoTitle: string;
-    seoDescription: string;
-    seoKeywords: string;
   }>;
 }
 
@@ -63,6 +62,9 @@ export default function CarsPage() {
   const [editingCar, setEditingCar] = useState<Car | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [groupByMake, setGroupByMake] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const router = useRouter();
 
   // Form states
@@ -95,10 +97,10 @@ export default function CarsPage() {
       altText?: string;
     }>,
     translations: {
-      tr: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      en: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      ar: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      ru: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' }
+      tr: { title: '', description: '' },
+      en: { title: '', description: '' },
+      ar: { title: '', description: '' },
+      ru: { title: '', description: '' }
     }
   });
 
@@ -111,12 +113,24 @@ export default function CarsPage() {
       loadCars();
       loadCategories();
     }
-  }, [router]);
+  }, [router, refreshTrigger]);
 
-  const loadCars = async () => {
+  const loadCars = async (forceRefresh = false) => {
     try {
-      const data = await apiClient.getCars({ limit: 100 });
+      setLoading(true);
+      
+      if (forceRefresh) {
+        // Clear all cache to ensure fresh data
+        cache.clear();
+        console.log('Cache cleared for force refresh');
+      }
+      
+      // Use direct API call without cache for admin panel - get all cars
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/cars?limit=2000`);
+      const data = await response.json();
       setCars(data.cars || []);
+      setLastRefreshTime(new Date());
+      console.log(`Loaded ${data.cars?.length || 0} cars from API (total available: ${data.pagination?.total || 'unknown'})`);
     } catch (error) {
       console.error('Error loading cars:', error);
     } finally {
@@ -178,24 +192,30 @@ export default function CarsPage() {
       // Convert string values to appropriate types for API
       const submitData = {
         ...sanitizedFormData,
-        year: sanitizedFormData.year ? parseInt(sanitizedFormData.year) : undefined,
-        mileage: sanitizedFormData.mileage ? parseInt(sanitizedFormData.mileage) : undefined,
-        categoryId: sanitizedFormData.categoryId ? parseInt(sanitizedFormData.categoryId) : undefined,
-        soldPrice: sanitizedFormData.soldPrice ? parseFloat(sanitizedFormData.soldPrice) : undefined,
-        soldAt: sanitizedFormData.soldAt || undefined,
-        expectedArrival: sanitizedFormData.expectedArrival || undefined,
+        // Convert empty strings to null/undefined for optional fields
+        make: sanitizedFormData.make || null,
+        model: sanitizedFormData.model || null,
+        fuelType: sanitizedFormData.fuelType || null,
+        transmission: sanitizedFormData.transmission || null,
+        color: sanitizedFormData.color || null,
+        engine: sanitizedFormData.engine || null,
+        bodyType: sanitizedFormData.bodyType || null,
+        plateStatus: sanitizedFormData.plateStatus || null,
+        coverImage: sanitizedFormData.coverImage || null,
+        year: sanitizedFormData.year ? parseInt(sanitizedFormData.year) : null,
+        mileage: sanitizedFormData.mileage ? parseInt(sanitizedFormData.mileage) : null,
+        categoryId: sanitizedFormData.categoryId ? parseInt(sanitizedFormData.categoryId) : null,
+        soldPrice: sanitizedFormData.soldPrice ? parseFloat(sanitizedFormData.soldPrice) : null,
+        soldAt: sanitizedFormData.soldAt || null,
+        expectedArrival: sanitizedFormData.expectedArrival || null,
         // Send boolean status fields
         isSold: sanitizedFormData.isSold,
         isIncoming: sanitizedFormData.isIncoming,
-        isReserved: false, // Not implemented yet
+        isReserved: sanitizedFormData.isReserved,
         // Keep status for backward compatibility
         status: sanitizedFormData.isSold ? 'sold' : sanitizedFormData.isIncoming ? 'incoming' : 'available',
         // Update main price if car is sold and sold price is provided, otherwise use original price
-        price: sanitizedFormData.isSold && sanitizedFormData.soldPrice ? parseFloat(sanitizedFormData.soldPrice) : (sanitizedFormData.price ? parseFloat(sanitizedFormData.price) : undefined),
-        // Include new fields
-        bodyType: sanitizedFormData.bodyType || undefined,
-        plateStatus: sanitizedFormData.plateStatus || undefined,
-        coverImage: sanitizedFormData.coverImage || undefined,
+        price: sanitizedFormData.isSold && sanitizedFormData.soldPrice ? parseFloat(sanitizedFormData.soldPrice) : (sanitizedFormData.price ? parseFloat(sanitizedFormData.price) : null),
       };
 
       if (editingCar) {
@@ -205,7 +225,11 @@ export default function CarsPage() {
         if (formData.coverImage) {
           allImages.push(formData.coverImage);
         }
-        allImages.push(...formData.galleryImages.map(img => img.imagePath));
+        // Filter out undefined imagePath values
+        const galleryImagePaths = formData.galleryImages
+          .map(img => img.imagePath)
+          .filter(path => path && path.trim() !== '');
+        allImages.push(...galleryImagePaths);
         
         const updateData = {
           ...submitData,
@@ -241,10 +265,10 @@ export default function CarsPage() {
           coverImage: '',
           galleryImages: [],
           translations: {
-            tr: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-            en: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-            ar: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-            ru: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' }
+            tr: { title: '', description: '' },
+            en: { title: '', description: '' },
+            ar: { title: '', description: '' },
+            ru: { title: '', description: '' }
           }
         });
       } else {
@@ -254,7 +278,7 @@ export default function CarsPage() {
         // Form data'yı temizleme, edit modunda kalacak
       }
       
-      loadCars(); // Reload cars list
+      await loadCars(); // Reload cars list
     } catch (error) {
       console.error('Error saving car:', error);
       alert('Araç kaydedilirken bir hata oluştu');
@@ -266,10 +290,10 @@ export default function CarsPage() {
     
     // Convert translations array to object format
     const translationsObj: any = {
-      tr: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      en: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      ar: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-      ru: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' }
+      tr: { title: '', description: '' },
+      en: { title: '', description: '' },
+      ar: { title: '', description: '' },
+      ru: { title: '', description: '' }
     };
     
     if (car.translations) {
@@ -277,10 +301,7 @@ export default function CarsPage() {
         if (translationsObj[translation.lang]) {
           translationsObj[translation.lang] = {
             title: translation.title || '',
-            description: translation.description || '',
-            seo_title: translation.seoTitle || '',
-            seo_description: translation.seoDescription || '',
-            seo_keywords: translation.seoKeywords || ''
+            description: translation.description || ''
           };
         }
       });
@@ -327,7 +348,12 @@ export default function CarsPage() {
     if (confirm('Bu aracı silmek istediğinizden emin misiniz?')) {
       try {
         await apiClient.deleteCar(id);
-        loadCars(); // Reload cars list
+        
+        // Clear cache to ensure fresh data
+        cache.clear();
+        
+        // Reload cars list with fresh data
+        await loadCars();
       } catch (error) {
         console.error('Error deleting car:', error);
         alert('Araç silinirken bir hata oluştu');
@@ -352,24 +378,11 @@ export default function CarsPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl blur opacity-75"></div>
-                <Image
-                  src="/logo.png"
-                  alt="Mustafa Cangil Auto Trading Ltd."
-                  width={80}
-                  height={53}
-                  className="relative h-12 w-auto"
-                  style={{ width: 'auto', height: 'auto' }}
-                />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Araç Yönetimi
-                </h1>
-                <p className="text-sm text-gray-600 font-medium">Araçları ekleyin, düzenleyin ve yönetin</p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Araç Yönetimi
+              </h1>
+              <p className="text-xs text-gray-600 font-medium">Araçları ekleyin, düzenleyin ve yönetin</p>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -410,14 +423,47 @@ export default function CarsPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Group Toggle */}
-              <div className="flex justify-between items-center mb-6">
+              {/* Bulk Upload Button */}
+              <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Araçlar ({cars.length})
-                  </h2>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Araçlar ({cars.length})
+                      {loading && <span className="text-sm text-gray-500 ml-2">(Yükleniyor...)</span>}
+                    </h2>
+                    {lastRefreshTime && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Son güncelleme: {lastRefreshTime.toLocaleTimeString('tr-TR')}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center space-x-3">
+                  <button
+                    onClick={async () => {
+                      console.log('Manual refresh triggered');
+                      await loadCars(true); // Force refresh with cache clear
+                    }}
+                    title="Araç listesini yenile (Cache temizle)"
+                    className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Yenile</span>
+                  </button>
+                  <button
+                    onClick={() => setShowBulkUpload(!showBulkUpload)}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <span>Toplu Yükleme</span>
+                    <svg className={`w-4 h-4 transition-transform duration-200 ${showBulkUpload ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
                   <span className="text-sm font-medium text-gray-600">Marka Gruplama:</span>
                   <button
                     onClick={() => setGroupByMake(!groupByMake)}
@@ -433,6 +479,16 @@ export default function CarsPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Bulk Upload Section */}
+              {showBulkUpload && (
+                <div className="animate-in slide-in-from-top-2 duration-300">
+                  <BulkUpload onUploadComplete={async () => {
+                    console.log('Bulk upload completed, refreshing cars...');
+                    await loadCars(true); // Force refresh with cache clear
+                  }} />
+                </div>
+              )}
 
               {cars.length === 0 ? (
                 <div className="text-center py-20">
@@ -480,7 +536,7 @@ export default function CarsPage() {
                                 // Cover image'ı bul (isMain: true olan veya ilk image)
                                 const coverImage = car.images?.find(img => img.isMain) || car.images?.[0];
                                 const imageUrl = coverImage?.imagePath ? 
-                                  (coverImage.imagePath.startsWith('http') ? coverImage.imagePath : `http://localhost:3001${coverImage.imagePath}`) : 
+                                  (coverImage.imagePath.startsWith('http') ? coverImage.imagePath : `${process.env.NEXT_PUBLIC_UPLOAD_URL || ''}${coverImage.imagePath}`) : 
                                   null;
                                 
                                 return imageUrl ? (
@@ -502,7 +558,7 @@ export default function CarsPage() {
                               })()}
                               {car.featured && (
                                 <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                  ⭐ Öne Çıkan
+                                  ⭐ Featured
                                 </div>
                               )}
                             </div>
@@ -515,7 +571,7 @@ export default function CarsPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                   </svg>
-                                  <span>{car.mileage.toLocaleString()} km</span>
+                                  <span>{car.mileage ? car.mileage.toLocaleString() + ' km' : 'Kilometre Belirtilmemiş'}</span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -541,7 +597,7 @@ export default function CarsPage() {
                               </div>
                               <div className="mt-3">
                                 <p className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                                  £{car.price.toLocaleString()}
+                                  £{car.price ? car.price.toLocaleString() : 'Fiyat Belirtilmemiş'}
                                 </p>
                               </div>
                             </div>
@@ -591,7 +647,7 @@ export default function CarsPage() {
                                 // Cover image'ı bul (isMain: true olan veya ilk image)
                                 const coverImage = car.images?.find(img => img.isMain) || car.images?.[0];
                                 const imageUrl = coverImage?.imagePath ? 
-                                  (coverImage.imagePath.startsWith('http') ? coverImage.imagePath : `http://localhost:3001${coverImage.imagePath}`) : 
+                                  (coverImage.imagePath.startsWith('http') ? coverImage.imagePath : `${process.env.NEXT_PUBLIC_UPLOAD_URL || ''}${coverImage.imagePath}`) : 
                                   null;
                                 
                                 return imageUrl ? (
@@ -613,7 +669,7 @@ export default function CarsPage() {
                               })()}
                               {car.featured && (
                                 <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                  ⭐ Öne Çıkan
+                                  ⭐ Featured
                                 </div>
                               )}
                             </div>
@@ -626,7 +682,7 @@ export default function CarsPage() {
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                   </svg>
-                                  <span>{car.mileage.toLocaleString()} km</span>
+                                  <span>{car.mileage ? car.mileage.toLocaleString() + ' km' : 'Kilometre Belirtilmemiş'}</span>
                                 </div>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -652,7 +708,7 @@ export default function CarsPage() {
                               </div>
                               <div className="mt-3">
                                 <p className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                                  £{car.price.toLocaleString()}
+                                  £{car.price ? car.price.toLocaleString() : 'Fiyat Belirtilmemiş'}
                                 </p>
                               </div>
                             </div>
@@ -746,10 +802,10 @@ export default function CarsPage() {
                       coverImage: '',
                       galleryImages: [],
                       translations: {
-                        tr: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-                        en: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-                        ar: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' },
-                        ru: { title: '', description: '', seo_title: '', seo_description: '', seo_keywords: '' }
+                        tr: { title: '', description: '' },
+                        en: { title: '', description: '' },
+                        ar: { title: '', description: '' },
+                        ru: { title: '', description: '' }
                       }
                     });
                   }}
@@ -858,6 +914,7 @@ export default function CarsPage() {
                         onChange={(e) => setFormData({...formData, fuelType: e.target.value})}
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
                       >
+                        <option value="">Yakıt Türü Seçin</option>
                         <option value="Benzin">Benzin</option>
                         <option value="Dizel">Dizel</option>
                         <option value="Hibrit">Hibrit</option>
@@ -879,6 +936,7 @@ export default function CarsPage() {
                         onChange={(e) => setFormData({...formData, transmission: e.target.value})}
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
                       >
+                        <option value="">Vites Seçin</option>
                         <option value="Manuel">Manuel</option>
                         <option value="Otomatik">Otomatik</option>
                         <option value="Yarı Otomatik">Yarı Otomatik</option>
@@ -921,6 +979,50 @@ export default function CarsPage() {
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-700">
                         <span className="flex items-center space-x-2">
+                          <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                          <span>Kasa Tipi</span>
+                        </span>
+                      </label>
+                      <select
+                        value={formData.bodyType}
+                        onChange={(e) => setFormData({...formData, bodyType: e.target.value})}
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      >
+                        <option value="">Kasa Tipi Seçin</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Coupe">Coupe</option>
+                        <option value="Cabrio">Cabrio</option>
+                        <option value="Pickup">Pickup</option>
+                        <option value="Sports Car">Sports Car</option>
+                        <option value="Transport">Transport</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        <span className="flex items-center space-x-2">
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>Plaka Durumu</span>
+                        </span>
+                      </label>
+                      <select
+                        value={formData.plateStatus}
+                        onChange={(e) => setFormData({...formData, plateStatus: e.target.value})}
+                        className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      >
+                        <option value="">Plaka Durumu Seçin</option>
+                        <option value="Plakalı">Plakalı</option>
+                        <option value="Plakasız">Plakasız</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        <span className="flex items-center space-x-2">
                           <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                           </svg>
@@ -949,6 +1051,7 @@ export default function CarsPage() {
                         onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
                         className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-200"
                       >
+                        <option value="">Kategori Seçin</option>
                         {categories.map(cat => (
                           <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
@@ -995,6 +1098,22 @@ export default function CarsPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span>Yolda Gelen</span>
+                          </label>
+                        </div>
+
+                        {/* Featured Status */}
+                        <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+                          <input
+                            type="checkbox"
+                            checked={formData.featured}
+                            onChange={(e) => setFormData({...formData, featured: e.target.checked})}
+                            className="h-5 w-5 text-amber-500 focus:ring-amber-500 border-gray-300 rounded"
+                          />
+                          <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                            <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                            <span>Öne Çıkan Araç</span>
                           </label>
                         </div>
                       </div>
@@ -1061,21 +1180,7 @@ export default function CarsPage() {
                       </div>
                     )}
                   </div>
-                    <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
-                      <input
-                        type="checkbox"
-                        checked={formData.featured}
-                        onChange={(e) => setFormData({...formData, featured: e.target.checked})}
-                        className="h-5 w-5 text-amber-500 focus:ring-amber-500 border-gray-300 rounded"
-                      />
-                      <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                        <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                        </svg>
-                        <span>Öne Çıkan Araç</span>
-                      </label>
-                    </div>
-                  </div>
+                </div>
 
                 {/* Çok Dilli İçerik */}
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
@@ -1130,54 +1235,6 @@ export default function CarsPage() {
                             })}
                             rows={3}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"
-                          />
-                          <input
-                            type="text"
-                            placeholder={`${lang.toUpperCase()} SEO Başlık`}
-                            value={formData.translations[lang as keyof typeof formData.translations].seo_title}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              translations: {
-                                ...formData.translations,
-                                [lang]: {
-                                  ...formData.translations[lang as keyof typeof formData.translations],
-                                  seo_title: e.target.value
-                                }
-                              }
-                            })}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                          />
-                          <input
-                            type="text"
-                            placeholder={`${lang.toUpperCase()} SEO Açıklama`}
-                            value={formData.translations[lang as keyof typeof formData.translations].seo_description}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              translations: {
-                                ...formData.translations,
-                                [lang]: {
-                                  ...formData.translations[lang as keyof typeof formData.translations],
-                                  seo_description: e.target.value
-                                }
-                              }
-                            })}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                          />
-                          <input
-                            type="text"
-                            placeholder={`${lang.toUpperCase()} SEO Anahtar Kelimeler`}
-                            value={formData.translations[lang as keyof typeof formData.translations].seo_keywords}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              translations: {
-                                ...formData.translations,
-                                [lang]: {
-                                  ...formData.translations[lang as keyof typeof formData.translations],
-                                  seo_keywords: e.target.value
-                                }
-                              }
-                            })}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                           />
                         </div>
                       </div>

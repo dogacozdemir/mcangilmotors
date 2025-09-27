@@ -28,8 +28,8 @@ export function ContactCTA() {
     {
       icon: Mail,
       title: 'E-posta',
-      description: 'info@mcangilmotors.com',
-      action: 'mailto:info@mcangilmotors.com',
+      description: 'm.cangilmotors@gmail.com',
+      action: 'mailto:m.cangilmotors@gmail.com',
       color: 'text-blue-600'
     },
     {

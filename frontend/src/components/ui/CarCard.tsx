@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { Car, Heart, ArrowRight, ChevronLeft, ChevronRight, Eye, Scale } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Car, Heart, ArrowRight, ChevronLeft, ChevronRight, Eye, Scale, Phone } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { OptimizedImage } from './OptimizedImage';
 import { getCarImageUrl } from '@/lib/urlUtils';
+import { PhotoModal } from './PhotoModal';
 
 interface CarCardProps {
   car: {
@@ -35,6 +37,10 @@ interface CarCardProps {
       sortOrder: number;
       altText?: string;
     }>;
+    translations?: Array<{
+      title: string;
+      description: string;
+    }>;
   };
   locale: string;
   viewMode?: 'grid' | 'list';
@@ -49,6 +55,13 @@ interface CarCardProps {
 
 function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInComparison = false, onWishlist, isInWishlist = false, isSoldCar = false, showIncomingBadge = false }: CarCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const t = useTranslations('common');
+  
+  // Debug: Log car price to see what value we're getting
+  console.log('CarCard - Car price:', car.price, 'Type:', typeof car.price, 'Is 0:', car.price === 0, 'Is null:', car.price === null, 'Is undefined:', car.price === undefined);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -134,6 +147,39 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
     setCurrentImageIndex(index);
   };
 
+  // Touch/swipe handlers
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
+    if (isRightSwipe && images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowPhotoModal(true);
+  };
+
   // Grid View
   if (viewMode === 'grid') {
     return (
@@ -141,13 +187,19 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
         className="group relative bg-white rounded-2xl shadow-lg border border-gray-200 
           hover:shadow-2xl hover:scale-105 hover:border-amber-300
           transition-all duration-300 ease-out cursor-pointer
-          w-full max-w-sm mx-auto overflow-hidden" 
+          w-full h-full flex flex-col overflow-hidden" 
         aria-label={`${car.year} ${car.make} ${car.model}`}
       >
         {/* Image Section */}
         <div className="relative overflow-hidden rounded-t-2xl">
           <Link href={`/${locale}/cars/${car.id}`}>
-            <div className="relative aspect-[4/3] overflow-hidden">
+            <div 
+              className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={handleImageClick}
+            >
               <OptimizedImage
                 src={currentImage.imagePath}
                 alt={`${car.year} ${car.make} ${car.model}`}
@@ -157,6 +209,13 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                 priority={false}
                 quality={85}
               />
+              
+              {/* Photo Count Badge */}
+              {images.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm">
+                  {images.length} 📷
+                </div>
+              )}
             </div>
           </Link>
 
@@ -180,25 +239,6 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
             </div>
           )}
 
-          {/* Image Pagination Dots */}
-          {images.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-              {images.map((_, index) => (
-                <button 
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    goToImage(index);
-                  }}
-                  className={`w-2 h-2 rounded-full ${
-                    index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
-                  }`}
-                  aria-label={`Image ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex space-x-1 sm:space-x-2">
@@ -274,7 +314,7 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 hover:text-amber-600 transition-colors duration-200 line-clamp-1">
                   {car.make} {car.model}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">{car.year} • {car.mileage.toLocaleString()} km</p>
+                <p className="text-sm text-gray-600 mb-3">{car.year} • {car.mileage ? car.mileage.toLocaleString() : 'N/A'} km</p>
               </Link>
 
               {/* Grid View - Sadece temel bilgiler */}
@@ -288,6 +328,15 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                       <div className="text-lg font-bold text-green-600">{formatSoldPrice(car.soldPrice)}</div>
                       <div className="text-xs text-gray-500">Satış Fiyatı</div>
                     </div>
+                  ) : (car.price === 0 || car.price === null || car.price === undefined) ? (
+                    <a
+                      href="tel:+905338551166"
+                      className="flex items-center space-x-2 text-amber-600 hover:text-amber-700 transition-colors duration-200 group"
+                      title={t('contactForPrice')}
+                    >
+                      <Phone className="h-5 w-5" />
+                      <span className="text-lg font-bold">{t('contactUs')}</span>
+                    </a>
                   ) : (
                     <div className="text-lg font-bold text-amber-600">{formatPrice(car.price)}</div>
                   )}
@@ -321,7 +370,13 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
         {/* Image Section */}
         <div className="relative w-full md:w-80 h-64 md:h-56 overflow-hidden flex-shrink-0">
           <Link href={`/${locale}/cars/${car.id}`}>
-            <div className="relative w-full h-full overflow-hidden">
+            <div 
+              className="relative w-full h-full overflow-hidden cursor-pointer"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={handleImageClick}
+            >
               <OptimizedImage
                 src={currentImage.imagePath}
                 alt={`${car.year} ${car.make} ${car.model}`}
@@ -331,6 +386,13 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                 priority={false}
                 quality={85}
               />
+              
+              {/* Photo Count Badge */}
+              {images.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-sm">
+                  {images.length} 📷
+                </div>
+              )}
             </div>
           </Link>
 
@@ -354,25 +416,6 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
             </div>
           )}
 
-          {/* Image Pagination Dots */}
-          {images.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-              {images.map((_, index) => (
-                <button 
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    goToImage(index);
-                  }}
-                  className={`w-2 h-2 rounded-full ${
-                    index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
-                  }`}
-                  aria-label={`Image ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
 
           {/* Action Buttons */}
           <div className="absolute top-2 right-2 flex space-x-1">
@@ -450,7 +493,7 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 hover:text-amber-600 transition-colors duration-200">
                       {car.make} {car.model}
                     </h3>
-                    <p className="text-gray-600">{car.year} - {car.mileage.toLocaleString()} km</p>
+                    <p className="text-gray-600">{car.year} - {car.mileage ? car.mileage.toLocaleString() : 'N/A'} km</p>
                   </Link>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -459,6 +502,15 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
                       <div className="text-2xl md:text-3xl font-bold text-green-600">{formatSoldPrice(car.soldPrice)}</div>
                       <div className="text-sm text-gray-500">Satış Fiyatı</div>
                     </div>
+                  ) : (car.price === 0 || car.price === null || car.price === undefined) ? (
+                    <a
+                      href="tel:+905338551166"
+                      className="flex items-center space-x-2 text-amber-600 hover:text-amber-700 transition-colors duration-200 group"
+                      title={t('contactForPrice')}
+                    >
+                      <Phone className="h-6 w-6" />
+                      <span className="text-2xl md:text-3xl font-bold">{t('contactUs')}</span>
+                    </a>
                   ) : (
                     <div className="text-2xl md:text-3xl font-bold text-gray-900">{formatPrice(car.price)}</div>
                   )}
@@ -569,6 +621,18 @@ function CarCard({ car, locale, viewMode = 'grid', onQuickView, onCompare, isInC
           </div>
         </div>
       </div>
+
+      {/* Photo Modal */}
+      <PhotoModal
+        isOpen={showPhotoModal}
+        onClose={() => setShowPhotoModal(false)}
+        images={images.map(img => ({
+          imagePath: img.imagePath,
+          alt: `${car.year} ${car.make} ${car.model}`
+        }))}
+        currentIndex={currentImageIndex}
+        onIndexChange={setCurrentImageIndex}
+      />
     </article>
   );
 }

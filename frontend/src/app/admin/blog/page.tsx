@@ -8,6 +8,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import Image from 'next/image';
 import Link from 'next/link';
 import apiClient from '@/lib/api';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface BlogPost {
   id: number;
@@ -164,24 +165,11 @@ export default function AdminBlogPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 rounded-xl blur opacity-75"></div>
-                <Image
-                  src="/logo.png"
-                  alt="Mustafa Cangil Auto Trading Ltd."
-                  width={80}
-                  height={53}
-                  className="relative h-12 w-auto"
-                  style={{ width: 'auto', height: 'auto' }}
-                />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Blog Yönetimi
-                </h1>
-                <p className="text-sm text-gray-600 font-medium">Blog yazılarını ekleyin, düzenleyin ve yönetin</p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Blog Yönetimi
+              </h1>
+              <p className="text-xs text-gray-600 font-medium">Blog yazılarını ekleyin, düzenleyin ve yönetin</p>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -216,7 +204,7 @@ export default function AdminBlogPage() {
           {posts.map((post) => {
             const trTranslation = post.translations.find(t => t.lang === 'tr') || post.translations[0];
             const mainImage = post.imgUrl || (post.images.find(img => img.isMain)?.imagePath);
-            const imageUrl = mainImage?.startsWith('http') ? mainImage : mainImage ? `http://localhost:3001${mainImage}` : null;
+            const imageUrl = mainImage ? getImageUrl(mainImage) : null;
             
             return (
               <div key={post.id} className="bg-prestige-card rounded-2xl shadow-prestige border-2 border-prestige-gold/20 overflow-hidden hover:shadow-prestige-hover transition-all duration-300">

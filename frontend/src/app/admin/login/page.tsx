@@ -94,7 +94,7 @@ export default function AdminLogin() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="appearance-none block w-full px-6 py-4 border-2 border-prestige-border rounded-2xl placeholder-prestige-light-gray focus:outline-none focus:ring-2 focus:ring-prestige-gold focus:border-prestige-gold text-prestige-black font-prestige-sans transition-all duration-300 text-lg"
-                  placeholder="admin@mcangilmotors.com"
+                  placeholder="Enter your email address"
                 />
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-6 py-4 border-2 border-prestige-border rounded-2xl placeholder-prestige-light-gray focus:outline-none focus:ring-2 focus:ring-prestige-gold focus:border-prestige-gold text-prestige-black font-prestige-sans transition-all duration-300 text-lg"
-                  placeholder="admin123"
+                  placeholder="Enter your password"
                 />
               </div>
             </div>
@@ -129,13 +129,6 @@ export default function AdminLogin() {
             </div>
           </form>
 
-          <div className="mt-8">
-            <div className="bg-gradient-to-r from-prestige-gold/10 to-prestige-gold-light/10 border-2 border-prestige-gold/20 text-prestige-black px-6 py-4 rounded-2xl text-sm font-prestige-sans">
-              <strong className="text-prestige-gold font-semibold">Test Credentials:</strong><br />
-              <span className="text-prestige-gray">Email: admin@mcangilmotors.com</span><br />
-              <span className="text-prestige-gray">Password: admin123</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>

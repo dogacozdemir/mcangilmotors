@@ -11,7 +11,16 @@ const UPLOAD_BASE_URL = process.env.NEXT_PUBLIC_UPLOAD_URL || 'http://localhost:
 export const getApiUrl = (path: string): string => {
   // Remove leading slash if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `${API_BASE_URL}/${cleanPath}`;
+  
+  // Handle API_BASE_URL that might already include /api
+  const cleanApiBase = API_BASE_URL.replace(/\/api\/?$/, '');
+  
+  // If path already starts with 'api/', use it as is, otherwise add /api/
+  if (cleanPath.startsWith('api/')) {
+    return `${cleanApiBase}/${cleanPath}`;
+  } else {
+    return `${cleanApiBase}/api/${cleanPath}`;
+  }
 };
 
 /**

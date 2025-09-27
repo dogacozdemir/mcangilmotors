@@ -7,14 +7,10 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { SoldCarCard } from '@/components/ui/SoldCarCard';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { Grid, List, SlidersHorizontal, Scale, Search, X, Filter, Zap } from 'lucide-react';
+import { Grid, List, Search } from 'lucide-react';
 import apiClient from '@/lib/api';
 
 // Lazy load heavy components
-const AdvancedFilters = dynamic(() => import('@/components/inventory/AdvancedFilters').then(mod => ({ default: mod.AdvancedFilters })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
-});
-
 const VirtualizedGrid = dynamic(() => import('@/components/inventory/VirtualizedGrid').then(mod => ({ default: mod.VirtualizedGrid })), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg"></div>
 });
@@ -80,30 +76,14 @@ export default function SoldCarsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [selectedCars, setSelectedCars] = useState<number[]>([]);
   const [quickViewCar, setQuickViewCar] = useState<Car | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
 
-  // Filters
-  const [filters, setFilters] = useState({
-    search: '',
-    make: '',
-    model: '',
-    yearMin: '',
-    yearMax: '',
-    priceMin: '',
-    priceMax: '',
-    mileageMin: '',
-    mileageMax: '',
-    fuelType: '',
-    transmission: '',
-    bodyType: '',
-    color: '',
-    category: ''
-  });
+  // Search only
+  const [search, setSearch] = useState('');
 
   // Sort options
   const [sortBy, setSortBy] = useState('soldDate');
@@ -135,30 +115,14 @@ export default function SoldCarsPage() {
   // Filter and sort cars
   const filteredAndSortedCars = useMemo(() => {
     let filtered = cars.filter(car => {
-      const searchMatch = !filters.search || 
-        `${car.make} ${car.model} ${car.year}`.toLowerCase().includes(filters.search.toLowerCase()) ||
+      const searchMatch = !search || 
+        `${car.make} ${car.model} ${car.year}`.toLowerCase().includes(search.toLowerCase()) ||
         car.translations?.some(t => 
-          t.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-          t.description.toLowerCase().includes(filters.search.toLowerCase())
+          t.title.toLowerCase().includes(search.toLowerCase()) ||
+          t.description.toLowerCase().includes(search.toLowerCase())
         );
 
-      const makeMatch = !filters.make || car.make === filters.make;
-      const modelMatch = !filters.model || car.model === filters.model;
-      const yearMatch = (!filters.yearMin || car.year >= parseInt(filters.yearMin)) &&
-                       (!filters.yearMax || car.year <= parseInt(filters.yearMax));
-      const priceMatch = (!filters.priceMin || car.price >= parseInt(filters.priceMin)) &&
-                        (!filters.priceMax || car.price <= parseInt(filters.priceMax));
-      const mileageMatch = (!filters.mileageMin || car.mileage >= parseInt(filters.mileageMin)) &&
-                          (!filters.mileageMax || car.mileage <= parseInt(filters.mileageMax));
-      const fuelTypeMatch = !filters.fuelType || car.fuelType === filters.fuelType;
-      const transmissionMatch = !filters.transmission || car.transmission === filters.transmission;
-      const bodyTypeMatch = !filters.bodyType || car.bodyType === filters.bodyType;
-      const colorMatch = !filters.color || car.color === filters.color;
-      const categoryMatch = !filters.category || car.category?.name === filters.category;
-
-      return searchMatch && makeMatch && modelMatch && yearMatch && priceMatch && 
-             mileageMatch && fuelTypeMatch && transmissionMatch && bodyTypeMatch && 
-             colorMatch && categoryMatch;
+      return searchMatch;
     });
 
     // Sort
@@ -199,7 +163,7 @@ export default function SoldCarsPage() {
     });
 
     return filtered;
-  }, [cars, filters, sortBy, sortOrder]);
+  }, [cars, search, sortBy, sortOrder]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedCars.length / itemsPerPage);
@@ -208,28 +172,8 @@ export default function SoldCarsPage() {
   const paginatedCars = filteredAndSortedCars.slice(startIndex, endIndex);
 
   // Handlers
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      search: '',
-      make: '',
-      model: '',
-      yearMin: '',
-      yearMax: '',
-      priceMin: '',
-      priceMax: '',
-      mileageMin: '',
-      mileageMax: '',
-      fuelType: '',
-      transmission: '',
-      bodyType: '',
-      color: '',
-      category: ''
-    });
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
     setCurrentPage(1);
   };
 
@@ -271,7 +215,7 @@ export default function SoldCarsPage() {
   return (
     <>
       <Head>
-        <title>{t('soldCars.hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC Premium Araç Galerisi</title>
+        <title>{t('soldCars.hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC 2. El Ve Plakasız Araç Alım & Satım</title>
         <meta name="description" content={t('soldCars.hero.subtitle')} />
         <meta name="keywords" content="satılan araçlar, KKTC araç satışı, Mustafa Cangil Auto Trading Ltd., ikinci el araç, lüks araç, Lefkoşa araç galerisi, Girne araç galerisi" />
         
@@ -368,8 +312,8 @@ export default function SoldCarsPage() {
                   <input
                     type="text"
                     placeholder={t('soldCars.hero.searchPlaceholder')}
-                    value={filters.search}
-                    onChange={(e) => handleFilterChange('search', e.target.value)}
+                    value={search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                     className="w-full pl-12 pr-4 py-4 text-lg rounded-full border-0 focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-900"
                   />
                 </div>
@@ -380,23 +324,9 @@ export default function SoldCarsPage() {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Filters and Controls */}
+          {/* Controls */}
           <div className="mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              {/* Filter Toggle */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Filter className="w-5 h-5" />
-                {t('soldCars.filters.title')}
-                {Object.values(filters).some(f => f !== '') && (
-                  <span className="bg-amber-500 text-white text-xs px-2 py-1 rounded-full">
-                    {Object.values(filters).filter(f => f !== '').length}
-                  </span>
-                )}
-              </button>
-
               {/* View Controls */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -438,142 +368,8 @@ export default function SoldCarsPage() {
                     {sortOrder === 'asc' ? '↑' : '↓'}
                   </button>
                 </div>
-
-                {/* Clear Filters */}
-                {Object.values(filters).some(f => f !== '') && (
-                  <button
-                    onClick={handleClearFilters}
-                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                    {t('soldCars.filters.clearAll')}
-                  </button>
-                )}
               </div>
             </div>
-
-            {/* Advanced Filters */}
-            {showFilters && (
-              <div className="mt-4">
-                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Make Filter */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Marka
-                      </label>
-                      <select
-                        value={filters.make}
-                        onChange={(e) => handleFilterChange('make', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                      >
-                        <option value="">Tüm Markalar</option>
-                        {Array.from(new Set(cars.map(car => car.make))).map(make => (
-                          <option key={make} value={make}>{make}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Year Range */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Yıl Aralığı
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          placeholder="Min"
-                          value={filters.yearMin}
-                          onChange={(e) => handleFilterChange('yearMin', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Max"
-                          value={filters.yearMax}
-                          onChange={(e) => handleFilterChange('yearMax', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Price Range */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Fiyat Aralığı
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          placeholder="Min £"
-                          value={filters.priceMin}
-                          onChange={(e) => handleFilterChange('priceMin', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                        />
-                        <input
-                          type="number"
-                          placeholder="Max £"
-                          value={filters.priceMax}
-                          onChange={(e) => handleFilterChange('priceMax', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Fuel Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Yakıt Türü
-                      </label>
-                      <select
-                        value={filters.fuelType}
-                        onChange={(e) => handleFilterChange('fuelType', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                      >
-                        <option value="">Tüm Yakıt Türleri</option>
-                        {Array.from(new Set(cars.map(car => car.fuelType))).map(fuelType => (
-                          <option key={fuelType} value={fuelType}>{fuelType}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Transmission */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Şanzıman
-                      </label>
-                      <select
-                        value={filters.transmission}
-                        onChange={(e) => handleFilterChange('transmission', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                      >
-                        <option value="">Tüm Şanzımanlar</option>
-                        {Array.from(new Set(cars.map(car => car.transmission))).map(transmission => (
-                          <option key={transmission} value={transmission}>{transmission}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Kategori
-                      </label>
-                      <select
-                        value={filters.category}
-                        onChange={(e) => handleFilterChange('category', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                      >
-                        <option value="">Tüm Kategoriler</option>
-                        {categories.map(category => (
-                          <option key={category.id} value={category.name}>{category.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Results Count */}
@@ -665,10 +461,10 @@ export default function SoldCarsPage() {
                   {t('soldCars.results.noResultsDesc')}
                 </p>
                 <button
-                  onClick={handleClearFilters}
+                  onClick={() => setSearch('')}
                   className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
                 >
-                  {t('soldCars.results.clearFilters')}
+                  Aramayı Temizle
                 </button>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { Upload, X, Link, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface ImageUploadProps {
   value?: string;
@@ -84,7 +85,7 @@ export function ImageUpload({ value, onChange, onImageUpload, className = '' }: 
         <div className="relative">
           <div className="relative w-full h-48 bg-prestige-card rounded-2xl overflow-hidden border-2 border-prestige-gold/20">
             <Image
-              src={value.startsWith('http') ? value : `http://localhost:3001${value}`}
+              src={getImageUrl(value)}
               alt="Preview"
               fill
               className="object-cover"

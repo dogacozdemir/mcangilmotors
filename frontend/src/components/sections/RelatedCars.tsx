@@ -91,7 +91,7 @@ export function RelatedCars({
                 
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-primary">
-                    €{car.price.toLocaleString('tr-TR')}
+                    £{car.price ? car.price.toLocaleString('tr-TR') : 'Fiyat Belirtilmemiş'}
                   </span>
                   <span className="text-sm text-gray-500">
                     Detayları Gör

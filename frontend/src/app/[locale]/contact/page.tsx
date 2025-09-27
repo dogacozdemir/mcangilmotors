@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import Head from 'next/head';
 import { Phone, MessageCircle, Mail, MapPin, Clock, Instagram, Facebook } from 'lucide-react';
 import { generateLocalBusinessSchema } from '@/lib/metaTags';
+import { ContactForm } from '@/components/sections/ContactForm';
 
 export default function ContactPage() {
   const t = useTranslations('contact');
@@ -26,7 +27,7 @@ export default function ContactPage() {
     url: `/${locale}/contact`,
     locale,
     telephone: settings.phone,
-    email: 'info@mcangilmotors.com',
+    email: 'm.cangilmotors@gmail.com',
     address: {
       streetAddress: 'Sakarya Sk No:10',
       addressLocality: 'Alsancak',
@@ -35,7 +36,7 @@ export default function ContactPage() {
       postalCode: '99010'
     },
     openingHours: [
-      'Mo-Fr 09:00-18:00',
+      'Mo-Fr 08:00-19:00',
       'Sa 09:00-16:00'
     ],
     socialMedia: {
@@ -49,7 +50,7 @@ export default function ContactPage() {
   return (
     <>
       <Head>
-        <title>{t('hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC Premium Araç Galerisi</title>
+        <title>{t('hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC 2. El Ve Plakasız Araç Alım & Satım</title>
         <meta name="description" content={t('hero.subtitle')} />
         <meta name="keywords" content="iletişim, KKTC araç galerisi, Mustafa Cangil Auto Trading Ltd., Lefkoşa araba galerisi, Girne araba satış, contact, car dealership Cyprus" />
         
@@ -88,28 +89,28 @@ export default function ContactPage() {
       <div className="min-h-screen bg-gray-50">
       {/* Premium Hero Section */}
       <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               {t('hero.title')}
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto">
               {t('hero.subtitle')}
             </p>
-            <div className="flex items-center justify-center gap-8 text-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-base sm:text-lg">
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">7/24</div>
-                <div className="text-gray-300">{t('hero.support')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">7/24</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.support')}</div>
               </div>
-              <div className="w-px h-12 bg-gray-600"></div>
+              <div className="hidden sm:block w-px h-8 lg:h-12 bg-gray-600"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">25+</div>
-                <div className="text-gray-300">{t('hero.experience')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">5+</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.experience')}</div>
               </div>
-              <div className="w-px h-12 bg-gray-600"></div>
+              <div className="hidden sm:block w-px h-8 lg:h-12 bg-gray-600"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">%100</div>
-                <div className="text-gray-300">{t('hero.satisfaction')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">%100</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.satisfaction')}</div>
               </div>
             </div>
           </div>
@@ -215,7 +216,7 @@ export default function ContactPage() {
                       {t('contactDetails.email')}
                     </h3>
                     <a 
-                      href="mailto:info@mcangilmotors.com"
+                      href="mailto:m.cangilmotors@gmail.com"
                       className="text-gray-600 group-hover:text-gray-900 transition-colors duration-300 text-lg font-medium"
                     >
                       {t('contactDetails.emailAddress')}
@@ -282,79 +283,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <h3 className="text-3xl font-bold text-gray-900 mb-6">{t('form.title')}</h3>
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('form.name')}
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors duration-300"
-                    placeholder={t('form.namePlaceholder')}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('form.email')}
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors duration-300"
-                    placeholder={t('form.emailPlaceholder')}
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('form.phone')}
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors duration-300"
-                  placeholder={t('form.phonePlaceholder')}
-                />
-              </div>
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('form.subject')}
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors duration-300"
-                  placeholder={t('form.subjectPlaceholder')}
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('form.message')}
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors duration-300"
-                  placeholder={t('form.messagePlaceholder')}
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-amber-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-105"
-              >
-                {t('form.submit')}
-              </button>
-            </form>
-          </div>
+          <ContactForm />
         </div>
 
         {/* Map Section */}

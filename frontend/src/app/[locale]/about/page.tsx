@@ -82,28 +82,23 @@ export default function AboutPage() {
     <div className="min-h-screen">
       {/* Premium Hero Section */}
       <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               {translation?.title || t('title')}
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto">
               {t('hero.subtitle')}
             </p>
-            <div className="flex items-center justify-center gap-8 text-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-base sm:text-lg">
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">25+</div>
-                <div className="text-gray-300">{t('hero.yearsExperience')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">5+</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.yearsExperience')}</div>
               </div>
-              <div className="w-px h-12 bg-gray-600"></div>
+              <div className="hidden sm:block w-px h-8 lg:h-12 bg-gray-600"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">5000+</div>
-                <div className="text-gray-300">{t('hero.happyCustomers')}</div>
-              </div>
-              <div className="w-px h-12 bg-gray-600"></div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">1000+</div>
-                <div className="text-gray-300">{t('hero.soldCars')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">500+</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.happyCustomers')}</div>
               </div>
             </div>
           </div>

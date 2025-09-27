@@ -9,6 +9,8 @@ import { Calendar, Gauge, Fuel, Settings, Star, ArrowLeft, Phone, MessageCircle 
 import apiClient from '@/lib/api';
 import { CarDetailBreadcrumb } from '@/components/ui/Breadcrumb';
 import { RelatedCars, RelatedCarsByCategory, RelatedCarsByPrice } from '@/components/sections/RelatedCars';
+import { FrontendXSSProtection } from '@/lib/sanitizer';
+import { PhotoModal } from '@/components/ui/PhotoModal';
 
 interface Car {
   id: number;
@@ -53,6 +55,9 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
   const [relatedCars, setRelatedCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const loadCar = useCallback(async () => {
     try {
@@ -108,7 +113,7 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
-      currency: 'EUR',
+      currency: 'GBP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -116,6 +121,38 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
 
   const formatMileage = (mileage: number) => {
     return new Intl.NumberFormat('tr-TR').format(mileage) + ' km';
+  };
+
+  // Touch/swipe handlers
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd || !car?.images) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    const imagesLength = car.images?.length || 0;
+    if (isLeftSwipe && imagesLength > 1) {
+      setSelectedImage((prev) => (prev + 1) % imagesLength);
+    }
+    if (isRightSwipe && imagesLength > 1) {
+      setSelectedImage((prev) => (prev - 1 + imagesLength) % imagesLength);
+    }
+  };
+
+  const handleImageClick = () => {
+    setShowPhotoModal(true);
   };
 
   return (
@@ -149,7 +186,9 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
               {car.make} {car.model}
             </h1>
             <p className="text-xl text-gray-300 mb-6">
-              {car.year} • {formatMileage(car.mileage)} • {car.fuelType} • {car.transmission}
+              {[car.year, formatMileage(car.mileage), car.fuelType, car.transmission]
+                .filter(Boolean)
+                .join(' • ')}
             </p>
             <div className="text-3xl font-bold text-amber-400 mb-8">
               {formatPrice(car.price)}
@@ -163,7 +202,13 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
-            <div className="relative h-96 bg-gray-200 rounded-xl overflow-hidden">
+            <div 
+              className="relative h-96 bg-gray-200 rounded-xl overflow-hidden cursor-pointer"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={handleImageClick}
+            >
               <Image
                 src={car.images && car.images.length > 0 ? car.images[selectedImage].imagePath : '/cars/placeholder.svg'}
                 alt={`${car.year} ${car.make} ${car.model}`}
@@ -177,6 +222,18 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
                   Öne Çıkan
                 </div>
               )}
+              
+              {/* Photo Count Badge */}
+              {car.images && car.images.length > 1 && (
+                <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+                  {car.images.length} 📷
+                </div>
+              )}
+              
+              {/* Click to enlarge hint */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity">
+                Fotoğrafı büyütmek için tıklayın
+              </div>
             </div>
             
             {/* Thumbnail Gallery */}
@@ -255,6 +312,20 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
               </div>
             </div>
 
+            {/* Car Description */}
+            {car.translations && car.translations.length > 0 && car.translations[0].description && (
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Araç Açıklaması</h3>
+                <div 
+                  className="prose prose-gray max-w-none text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={FrontendXSSProtection.createSafeHTML(
+                    car.translations[0].description.replace(/\n/g, '<br>')
+                  )}
+                  dir={locale === 'ar' ? 'rtl' : 'ltr'}
+                />
+              </div>
+            )}
+
             {/* Contact Actions */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 mb-4">İletişim</h3>
@@ -287,6 +358,20 @@ export default function CarDetailClient({ params }: CarDetailClientProps) {
           cars={relatedCars}
           currentCarId={car.id}
           locale={locale}
+        />
+      )}
+
+      {/* Photo Modal */}
+      {car?.images && car.images.length > 0 && (
+        <PhotoModal
+          isOpen={showPhotoModal}
+          onClose={() => setShowPhotoModal(false)}
+          images={car.images.map(img => ({
+            imagePath: img.imagePath,
+            alt: `${car.year} ${car.make} ${car.model}`
+          }))}
+          currentIndex={selectedImage}
+          onIndexChange={setSelectedImage}
         />
       )}
     </div>

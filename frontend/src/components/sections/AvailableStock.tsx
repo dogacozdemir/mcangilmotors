@@ -275,7 +275,8 @@ export function AvailableStock() {
         ) : (
           <>
             <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-12"
+              style={{ gridAutoRows: '1fr' }}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -284,7 +285,7 @@ export function AvailableStock() {
               {displayedCars.map((car, index) => (
                 <motion.div 
                   key={car.id} 
-                  className="premium-card"
+                  className="premium-card h-full flex flex-col"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ 

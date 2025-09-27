@@ -28,7 +28,7 @@ export interface CarMetaConfig {
 // Generate car-specific title
 export function generateCarTitle(car: CarMetaConfig): string {
   const baseTitle = `${car.year} ${car.make} ${car.model}`;
-  const price = `€${car.price.toLocaleString('tr-TR')}`;
+  const price = car.price ? `£${car.price.toLocaleString('tr-TR')}` : 'Fiyat Belirtilmemiş';
   const location = car.locale === 'tr' ? 'KKTC' : 
                    car.locale === 'en' ? 'Northern Cyprus' :
                    car.locale === 'ar' ? 'شمال قبرص' : 'Северный Кипр';
@@ -40,8 +40,8 @@ export function generateCarTitle(car: CarMetaConfig): string {
 export function generateCarDescription(car: CarMetaConfig): string {
   const locale = car.locale;
   const baseInfo = `${car.year} ${car.make} ${car.model}`;
-  const price = `€${car.price.toLocaleString('tr-TR')}`;
-  const mileage = `${car.mileage.toLocaleString('tr-TR')} km`;
+  const price = car.price ? `£${car.price.toLocaleString('tr-TR')}` : 'Fiyat Belirtilmemiş';
+  const mileage = car.mileage ? `${car.mileage.toLocaleString('tr-TR')} km` : 'Kilometre Belirtilmemiş';
   
   if (locale === 'tr') {
     return `${baseInfo} - ${price} - ${mileage} - ${car.fuelType} - ${car.transmission} - ${car.color} | KKTC'nin en güvenilir araç galerisi Mustafa Cangil Motors'ta. Yurtdışından araç import, satış ve servis hizmetleri.`;
@@ -193,7 +193,7 @@ export function generateCarSchema(car: CarMetaConfig) {
     "offers": {
       "@type": "Offer",
       "url": carUrl,
-      "priceCurrency": "EUR",
+      "priceCurrency": "GBP",
       "price": car.price,
       "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       "availability": "https://schema.org/InStock",
@@ -203,7 +203,7 @@ export function generateCarSchema(car: CarMetaConfig) {
         "name": "Mustafa Cangil Motors",
         "url": baseUrl,
         "telephone": "+90-533-855-11-66",
-        "email": "info@mcangilmotors.com",
+        "email": "m.cangilmotors@gmail.com",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Sakarya Sk No:10",

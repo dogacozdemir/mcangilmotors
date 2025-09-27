@@ -22,7 +22,7 @@ const createHeroBackground = () => {
     </text>
     <text x="50%" y="60%" font-family="Arial, sans-serif" font-size="24" 
           text-anchor="middle" dominant-baseline="middle" fill="#ffffff" opacity="0.2">
-      Premium Araç Galerisi
+      2. El Ve Plakasız Araç Alım & Satım
     </text>
   </svg>`;
   

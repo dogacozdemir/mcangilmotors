@@ -18,6 +18,8 @@
     "submit": "Submit",
     "reset": "Reset",
     "confirm": "Confirm",
+    "contactUs": "Contact",
+    "contactForPrice": "Contact for price",
     "yes": "Yes",
     "no": "No"
   },
@@ -32,12 +34,12 @@
   "home": {
     "title": "Mustafa Cangil Auto Trading Ltd. - Northern Cyprus's Most Trusted Car Dealership",
     "subtitle": "Premium Vehicle Gallery",
-    "description": "Northern Cyprus's most trusted vehicle gallery. 25+ years of experience in Nicosia and Kyrenia. Quality used cars, luxury vehicles, and reliable service. Car financing, test drives, and 24/7 customer support.",
+    "description": "Northern Cyprus's most trusted vehicle gallery. 5+ years of experience in Nicosia and Kyrenia. Quality used cars, luxury vehicles, and reliable service. Car financing, test drives, and 24/7 customer support.",
     "keywords": "Northern Cyprus car dealership, used cars, car sales, Mustafa Cangil Auto Trading Ltd., vehicle gallery, premium cars, luxury vehicles, car financing, test drive, car insurance, trade-in service, car import, BMW, Mercedes, Audi, Toyota, Honda, Ford, Hyundai, Kia, Nissan, Suzuki, Nicosia, Kyrenia, Northern Cyprus",
     "hero": {
-      "title": "Northern Cyprus's Vehicle",
-      "titleHighlight": "Gallery",
-      "subtitle": "Find your dream car at Northern Cyprus's most prestigious vehicle gallery. Discover our quality, reliable and affordable options.",
+      "title": "Northern Cyprus's Most Trusted",
+      "titleHighlight": "Auto Gallery",
+      "subtitle": "Find your dream car at Northern Cyprus's most reliable vehicle gallery. Discover our quality, reliable and affordable options.",
       "searchPlaceholder": "Search by brand, model or feature...",
       "viewAllCars": "View All Vehicles",
       "aboutUs": "About Us",
@@ -68,7 +70,7 @@
     },
     "brands": {
       "title": "Trusted Brands",
-      "subtitle": "We work with the world's most prestigious automotive brands"
+      "subtitle": "We work with the world's most reliable automotive brands"
     },
     "blog": {
       "title": "Latest News & Articles",
@@ -81,10 +83,10 @@
     "description": "Find the perfect vehicle from our wide selection",
     "keywords": "vehicle inventory, used cars, car dealership, Northern Cyprus, car sales, BMW, Mercedes, Audi, Toyota, Honda, Ford, Hyundai, Kia, Nissan, Suzuki, sedan, hatchback, SUV, coupe, cabrio, pickup, manual, automatic, petrol, diesel, hybrid, electric",
     "hero": {
-      "title": "Premium Vehicle Gallery",
-      "subtitle": "Find your dream car at Northern Cyprus's most prestigious vehicle gallery.",
+      "title": "Reliable Vehicle Gallery",
+      "subtitle": "Find your dream car at Northern Cyprus's most reliable vehicle gallery.",
       "searchPlaceholder": "Search by brand, model, year or feature...",
-      "loadingCars": "Loading premium vehicles..."
+      "loadingCars": "Loading reliable vehicles..."
     },
     "filters": {
       "title": "Filters",
@@ -194,7 +196,26 @@
     "yearMax": "Max Year",
     "priceMin": "Min £",
     "priceMax": "Max £",
-    "search": "Search"
+    "search": "Search",
+    "brands": "Brands",
+    "models": "Models",
+    "years": "Years",
+    "price": "Price",
+    "bodyType": "Body Type",
+    "fuelType": "Fuel Type",
+    "allBrands": "All Brands",
+    "allModels": "All Models",
+    "selectModel": "Select Model",
+    "selectBrandFirst": "Select Brand First",
+    "allYears": "All Years",
+    "allPrices": "All Prices",
+    "allBodyTypes": "All Body Types",
+    "allFuelTypes": "All Fuel Types",
+    "from": "From",
+    "to": "To",
+    "min": "Min",
+    "max": "Max",
+    "apply": "Apply"
   },
   "car": {
     "details": "Vehicle Details",
@@ -217,7 +238,7 @@
     "subtitle": "Your Trusted Partner in Northern Cyprus",
     "hero": {
       "title": "About Mustafa Cangil Auto Trading Ltd.",
-      "subtitle": "Northern Cyprus's most trusted vehicle gallery with over 25 years of experience"
+      "subtitle": "Northern Cyprus's most trusted vehicle gallery with over 5 years of experience"
     }
   },
   "contact": {
@@ -239,11 +260,11 @@
       "phoneAlternative": "Alternative Phone",
       "whatsappAlternative": "WhatsApp Alternative",
       "email": "Email",
-      "emailAddress": "info@mcangilmotors.com",
+      "emailAddress": "m.cangilmotors@gmail.com",
       "address": "Address",
       "addressText": "Sakarya Street No:10, Alsancak 2435",
       "workingHours": "Working Hours",
-      "workingHoursText": "Monday - Saturday: 09:00 - 18:00"
+      "workingHoursText": "Monday - Saturday: 08:00 - 19:00"
     },
     "socialMedia": {
       "title": "Social Media",
@@ -274,7 +295,7 @@
     "contactForm": "Contact Form",
     "sendMessage": "Send Message",
     "workingHours": "Business Hours",
-    "mondayToFriday": "Monday - Friday: 09:00 - 18:00",
+    "mondayToFriday": "Monday - Friday: 08:00 - 19:00",
     "saturday": "Saturday: 09:00 - 16:00",
     "sunday": "Sunday: Closed",
     "name": "Full Name",
@@ -298,11 +319,11 @@
       "whatsappText": "Contact via WhatsApp",
       "whatsappAlternative": "WhatsApp (Alternative)",
       "email": "Email",
-      "emailAddress": "info@mcangilmotors.com",
+      "emailAddress": "m.cangilmotors@gmail.com",
       "address": "Address",
       "addressText": "Sakarya Street No:10, Alsancak 2435",
       "workingHours": "Working Hours",
-      "workingHoursText": "Monday - Saturday: 09:00 - 18:00"
+      "workingHoursText": "Monday - Saturday: 08:00 - 19:00"
     },
     "form": {
       "title": "Send Message",
@@ -325,12 +346,11 @@
   "about": {
     "title": "About Us - Mustafa Cangil Auto Trading Ltd. Northern Cyprus",
     "subtitle": "Mustafa Cangil Auto Trading Ltd.",
-    "description": "As Northern Cyprus's most trusted vehicle gallery, we are proud to offer quality and reliable vehicles with 25+ years of experience in Nicosia and Kyrenia. Used car sales, vehicle financing, and 24/7 customer support.",
+    "description": "As Northern Cyprus's most trusted vehicle gallery, we are proud to offer quality and reliable vehicles with 5+ years of experience in Nicosia and Kyrenia. Used car sales, vehicle financing, and 24/7 customer support.",
     "hero": {
-      "subtitle": "As Northern Cyprus's most prestigious vehicle gallery, we have been providing premium vehicle experience for over 25 years",
+      "subtitle": "As Northern Cyprus's most reliable vehicle gallery, we have been providing premium vehicle experience for over 5 years",
       "yearsExperience": "Years Experience",
       "happyCustomers": "Happy Customers",
-      "soldCars": "Sold Vehicles",
       "loading": "Loading..."
     },
     "mission": "Our Mission",
@@ -367,7 +387,6 @@
     },
     "stats": {
       "happyCustomers": "Happy Customers",
-      "soldCars": "Sold Cars",
       "yearsExperience": "Years Experience",
       "customerSupport": "Customer Support"
     }
@@ -379,17 +398,17 @@
       {
         "name": "Ahmet Yılmaz",
         "location": "Nicosia",
-        "text": "I am very satisfied with the BMW X5 I bought from Mustafa Cangil Auto Trading Ltd. I recommend it without hesitation in terms of service quality and reliability."
+        "text": "Honestly, I'm really happy with my BMW X5! When I bought it, everything was so transparent. Mustafa's team really knows their stuff. They didn't hide anything about the car, explained every detail. I've been using it for 6 months now, no problems at all."
       },
       {
         "name": "Maria Petrou",
         "location": "Kyrenia",
-        "text": "I was very careful when buying a used car, but thanks to this gallery, I shopped with confidence. The quality of the vehicles is really very good."
+        "text": "Buying a used car has always been stressful for me. But not here! The team was so patient, answered all my questions. The cars are really clean and well-maintained. My family loved it too, thank you!"
       },
       {
         "name": "Mehmet Kaya",
         "location": "Famagusta",
-        "text": "I have been buying and selling cars for years, but I have never seen a gallery as reliable as Mustafa Cangil Auto Trading Ltd. Customer service is also perfect."
+        "text": "I've been in the car business for 25 years, seen many galleries. But Mustafa's place is different. They value customers, approach them genuinely. They've always been by my side both when buying and selling cars. Definitely recommend!"
       }
     ]
   },
@@ -428,7 +447,7 @@
     "page": {
       "hero": {
         "title": "Blog & News",
-        "subtitle": "Latest news from the automotive world, car maintenance tips and up-to-date information about our premium vehicle collection",
+        "subtitle": "Latest news from the automotive world, car maintenance tips and up-to-date information about Northern Cyprus automotive sector",
         "subtitleHighlight": "premium vehicle collection",
         "stats": {
           "blogPosts": "Blog Posts",
@@ -474,21 +493,29 @@
   "footer": {
     "description": "Mustafa Cangil Auto Trading Ltd. - Northern Cyprus's trusted vehicle gallery",
     "quickLinks": "Quick Links",
+    "services": "Our Services",
+    "servicesList": {
+      "carSales": "Car Sales",
+      "carEvaluation": "Car Evaluation"
+    },
     "contactInfo": "Contact Information",
+    "contact": "Contact",
+    "whatsapp": "WhatsApp",
+    "workingHours": "Monday - Saturday: 08:00 - 19:00",
     "followUs": "Follow Us",
     "allRightsReserved": "All rights reserved",
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "companyName": "Mustafa Cangil Auto Trading Ltd.",
-    "companyTagline": "Premium Vehicle Gallery",
-    "companyDescription": "As Northern Cyprus's most prestigious vehicle gallery, we have been providing premium vehicle experience for over 25 years. Find your dream car with our quality, reliable and affordable options.",
+    "companyTagline": "Reliable Vehicle Gallery",
+    "companyDescription": "Finding your dream car is so easy! Northern Cyprus's most prestigious vehicle gallery offers you quality and reliable vehicles. Get one step closer to your car with affordable prices.",
     "services": "Our Services",
     "contact": "Contact",
     "servicesList": {
-      "carSales": "Vehicle Sales",
-      "carRental": "Vehicle Rental",
-      "carEvaluation": "Vehicle Evaluation",
-      "financingSupport": "Financing Support"
+      "carSales": "Vehicle Sales & Purchase",
+      "service": "Service",
+      "cleaning": "Cleaning & Maintenance",
+      "insurance": "Insurance"
     },
     "contactInfo": {
       "phone": "Phone",
@@ -498,17 +525,16 @@
       "workingHours": "Working Hours"
     },
     "address": "Nicosia, Northern Cyprus",
-    "workingHours": "Monday - Saturday: 09:00 - 18:00",
+    "workingHours": "Monday - Saturday: 08:00 - 19:00",
     "copyright": "© 2025 Nerdy Reptile Digital Solutions Hub. All rights reserved.",
     "stats": {
-      "yearsExperience": "25+ Years Experience",
-      "soldCars": "1000+ Sold Vehicles"
+      "yearsExperience": "5+ Years Experience"
     }
   },
   "soldCars": {
     "hero": {
       "title": "Sold Vehicles",
-      "subtitle": "Browse our gallery of successfully sold premium vehicles.",
+      "subtitle": "Browse our successfully sold vehicles.",
       "searchPlaceholder": "Search by brand, model, year or features..."
     },
     "filters": {
@@ -548,7 +574,7 @@
   "incomingCars": {
     "hero": {
       "title": "Incoming Vehicles",
-      "subtitle": "Browse our gallery of premium vehicles coming to Northern Cyprus.",
+      "subtitle": "Browse our vehicles coming to Northern Cyprus.",
       "searchPlaceholder": "Search by brand, model, year or features..."
     },
     "filters": {

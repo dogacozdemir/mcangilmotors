@@ -7,11 +7,11 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import CarCard from '@/components/ui/CarCard';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { Grid, List, SlidersHorizontal, Scale, Search, X, Filter, Zap, Truck } from 'lucide-react';
+import { Grid, List, SlidersHorizontal, Scale, Search, X, Filter, Zap, Truck, AlertCircle } from 'lucide-react';
 import apiClient from '@/lib/api';
 
 // Lazy load heavy components
-const AdvancedFilters = dynamic(() => import('@/components/inventory/AdvancedFilters').then(mod => ({ default: mod.AdvancedFilters })), {
+const ModernFilters = dynamic(() => import('@/components/inventory/ModernFilters'), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
 });
 
@@ -86,55 +86,59 @@ export default function IncomingCarsPage() {
   const [showComparison, setShowComparison] = useState(false);
   const [sortBy, setSortBy] = useState('expected_arrival');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
   const [useVirtualScrolling, setUseVirtualScrolling] = useState(false);
   const [filters, setFilters] = useState({
-    make: '',
-    model: '',
-    year_min: '',
-    year_max: '',
-    price_min: '',
-    price_max: '',
-    mileage_min: '',
-    mileage_max: '',
-    expected_arrival_from: '',
-    expected_arrival_to: '',
-    fuel_type: '',
-    transmission: '',
-    color: '',
-    body_type: '',
-    plate_status: '',
-    category_id: '',
-    featured: ''
+    search: searchParams.get('search') || '',
+    make: searchParams.get('make') || '',
+    model: searchParams.get('model') || '',
+    yearFrom: searchParams.get('yearFrom') || '',
+    yearTo: searchParams.get('yearTo') || '',
+    priceFrom: searchParams.get('priceFrom') || '',
+    priceTo: searchParams.get('priceTo') || '',
+    priceSort: searchParams.get('priceSort') || '',
+    mileageFrom: searchParams.get('mileageFrom') || '',
+    mileageTo: searchParams.get('mileageTo') || '',
+    fuelType: searchParams.get('fuelType') || '',
+    transmission: searchParams.get('transmission') || '',
+    bodyType: searchParams.get('bodyType') || '',
+    color: searchParams.get('color') || '',
+    category: searchParams.get('category') || '',
+    featured: searchParams.get('featured') === 'true',
+    sortBy: searchParams.get('sortBy') || 'expectedArrival',
+    sortOrder: searchParams.get('sortOrder') || 'asc'
   });
 
   // URL'den filtreleri yükle
   const loadFiltersFromURL = useCallback(() => {
     const urlFilters = {
+      search: searchParams.get('search') || '',
       make: searchParams.get('make') || '',
       model: searchParams.get('model') || '',
-      year_min: searchParams.get('year_min') || '',
-      year_max: searchParams.get('year_max') || '',
-      price_min: searchParams.get('price_min') || '',
-      price_max: searchParams.get('price_max') || '',
-      mileage_min: searchParams.get('mileage_min') || '',
-      mileage_max: searchParams.get('mileage_max') || '',
-      expected_arrival_from: searchParams.get('expected_arrival_from') || '',
-      expected_arrival_to: searchParams.get('expected_arrival_to') || '',
-      fuel_type: searchParams.get('fuel_type') || '',
+      yearFrom: searchParams.get('yearFrom') || '',
+      yearTo: searchParams.get('yearTo') || '',
+      priceFrom: searchParams.get('priceFrom') || '',
+      priceTo: searchParams.get('priceTo') || '',
+      priceSort: searchParams.get('priceSort') || '',
+      mileageFrom: searchParams.get('mileageFrom') || '',
+      mileageTo: searchParams.get('mileageTo') || '',
+      fuelType: searchParams.get('fuelType') || '',
       transmission: searchParams.get('transmission') || '',
+      bodyType: searchParams.get('bodyType') || '',
       color: searchParams.get('color') || '',
-      body_type: searchParams.get('body_type') || '',
-      plate_status: searchParams.get('plate_status') || '',
-      category_id: searchParams.get('category_id') || '',
-      featured: searchParams.get('featured') || ''
+      category: searchParams.get('category') || '',
+      featured: searchParams.get('featured') === 'true',
+      sortBy: searchParams.get('sortBy') || 'expectedArrival',
+      sortOrder: searchParams.get('sortOrder') || 'asc'
     };
     setFilters(urlFilters);
-    setSearchQuery(searchParams.get('search') || '');
-    setSortBy(searchParams.get('sort') || 'expected_arrival');
-    setSortOrder((searchParams.get('order') as 'asc' | 'desc') || 'asc');
+    setSearchTerm(searchParams.get('search') || '');
+    setSortBy(searchParams.get('sortBy') || 'expectedArrival');
+    setSortOrder((searchParams.get('sortOrder') as 'asc' | 'desc') || 'asc');
     setViewMode((searchParams.get('view') as 'grid' | 'list') || 'grid');
   }, [searchParams]);
 
@@ -142,21 +146,32 @@ export default function IncomingCarsPage() {
   const updateURL = useCallback((newFilters: any, newSearch: string, newSort: string, newOrder: string, newView: string) => {
     const params = new URLSearchParams();
     
-    // Filtreleri URL'e ekle
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value) params.set(key, value as string);
-    });
-    
+    // Filtreleri URL'e ekle (inventory sayfasıyla aynı format)
     if (newSearch) params.set('search', newSearch);
-    if (newSort !== 'expected_arrival') params.set('sort', newSort);
-    if (newOrder !== 'asc') params.set('order', newOrder);
+    if (newFilters.make) params.set('make', newFilters.make);
+    if (newFilters.model) params.set('model', newFilters.model);
+    if (newFilters.yearFrom) params.set('yearFrom', newFilters.yearFrom);
+    if (newFilters.yearTo) params.set('yearTo', newFilters.yearTo);
+    if (newFilters.priceFrom) params.set('priceFrom', newFilters.priceFrom);
+    if (newFilters.priceTo) params.set('priceTo', newFilters.priceTo);
+    if (newFilters.mileageFrom) params.set('mileageFrom', newFilters.mileageFrom);
+    if (newFilters.mileageTo) params.set('mileageTo', newFilters.mileageTo);
+    if (newFilters.fuelType) params.set('fuelType', newFilters.fuelType);
+    if (newFilters.transmission) params.set('transmission', newFilters.transmission);
+    if (newFilters.bodyType) params.set('bodyType', newFilters.bodyType);
+    if (newFilters.color) params.set('color', newFilters.color);
+    if (newFilters.category) params.set('category', newFilters.category);
+    if (newFilters.featured) params.set('featured', 'true');
+    
+    if (newSort !== 'expectedArrival') params.set('sortBy', newSort);
+    if (newOrder !== 'asc') params.set('sortOrder', newOrder);
     if (newView !== 'grid') params.set('view', newView);
     
     const newURL = `/${locale}/incoming-cars${params.toString() ? `?${params.toString()}` : ''}`;
     router.replace(newURL, { scroll: false });
   }, [locale, router]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [carsRes, categoriesRes, makesRes, bodyTypesRes, plateStatusesRes] = await Promise.all([
@@ -179,38 +194,85 @@ export default function IncomingCarsPage() {
       setBodyTypes(Array.isArray(bodyTypesRes) ? bodyTypesRes : []);
       setPlateStatuses(Array.isArray(plateStatusesRes) ? plateStatusesRes : []);
       
-      // Models array'ini cars'dan oluştur
-      const uniqueModels = Array.from(new Set(carsData.map((car: any) => car.model).filter(Boolean))) as string[];
-      setModels(uniqueModels);
+      // Models array'ini başlangıçta boş bırak, marka seçildiğinde yüklenecek
+      setModels([]);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
+
+  // Load models based on selected make (inventory sayfasıyla aynı mantık)
+  useEffect(() => {
+    if (!filters.make) {
+      setModels([]);
+      return;
+    }
+
+    let cancelled = false;
+    const loadModelsForMake = async () => {
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const cleanApiBase = apiBase.replace(/\/api\/?$/, '');
+        const response = await fetch(`${cleanApiBase}/api/models?make=${encodeURIComponent(filters.make)}`);
+        if (!cancelled && response.ok) {
+          const modelsData = await response.json();
+          if (Array.isArray(modelsData)) {
+            setModels(modelsData);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load models for make:', err);
+      }
+    };
+    
+    loadModelsForMake();
+    return () => { cancelled = true; };
+  }, [filters.make]);
 
   useEffect(() => {
     loadFiltersFromURL();
     loadData();
-  }, [loadFiltersFromURL]);
+  }, [loadFiltersFromURL, loadData]);
 
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy);
-    updateURL(filters, searchQuery, newSortBy, sortOrder, viewMode);
+    updateURL(filters, searchTerm, newSortBy, sortOrder, viewMode);
   };
 
   const handleSortOrderChange = (newSortOrder: 'asc' | 'desc') => {
     setSortOrder(newSortOrder);
-    updateURL(filters, searchQuery, sortBy, newSortOrder, viewMode);
+    updateURL(filters, searchTerm, sortBy, newSortOrder, viewMode);
   };
 
   const handleViewModeChange = (newViewMode: 'grid' | 'list') => {
     setViewMode(newViewMode);
-    updateURL(filters, searchQuery, sortBy, sortOrder, newViewMode);
+    updateURL(filters, searchTerm, sortBy, sortOrder, newViewMode);
   };
 
+  // Handle search from hero search bar with validation
+  const handleSearch = useCallback(() => {
+    // Validate search term
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      setSearchError('Lütfen en az 2 karakter girin');
+      return;
+    }
+
+    // Clear previous errors
+    setSearchError(null);
+    
+    // Update filters state with search term
+    setFilters(prev => ({ ...prev, search: searchTerm.trim() }));
+    
+    // Update URL with search parameter
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('search', searchTerm.trim());
+    router.push(`/${locale}/incoming-cars?${params.toString()}`);
+  }, [searchTerm, searchParams, router, locale]);
+
   const handleSearchChange = (newSearchQuery: string) => {
-    setSearchQuery(newSearchQuery);
+    setSearchTerm(newSearchQuery);
     setCurrentPage(1);
     updateURL(filters, newSearchQuery, sortBy, sortOrder, viewMode);
   };
@@ -219,7 +281,7 @@ export default function IncomingCarsPage() {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     setCurrentPage(1);
-    updateURL(newFilters, searchQuery, sortBy, sortOrder, viewMode);
+    updateURL(newFilters, searchTerm, sortBy, sortOrder, viewMode);
   };
 
   const addToComparison = (car: Car) => {
@@ -269,41 +331,60 @@ export default function IncomingCarsPage() {
 
   const onClearFilters = () => {
     const clearedFilters = {
+      search: '',
       make: '',
       model: '',
-      year_min: '',
-      year_max: '',
-      price_min: '',
-      price_max: '',
-      mileage_min: '',
-      mileage_max: '',
-      expected_arrival_from: '',
-      expected_arrival_to: '',
-      fuel_type: '',
+      yearFrom: '',
+      yearTo: '',
+      priceFrom: '',
+      priceTo: '',
+      priceSort: '',
+      mileageFrom: '',
+      mileageTo: '',
+      fuelType: '',
       transmission: '',
+      bodyType: '',
       color: '',
-      body_type: '',
-      plate_status: '',
-      category_id: '',
-      featured: ''
+      category: '',
+      featured: false,
+      sortBy: 'expectedArrival',
+      sortOrder: 'asc'
     };
     setFilters(clearedFilters);
-    setSearchQuery('');
+    setSearchTerm('');
     setCurrentPage(1);
-    updateURL(clearedFilters, '', sortBy, sortOrder, viewMode);
+    setSortBy('expectedArrival');
+    setSortOrder('asc');
+    updateURL(clearedFilters, '', 'expectedArrival', 'asc', 'grid');
   };
 
   // Aktif filtre sayısını hesapla
   const activeFiltersCount = useMemo(() => {
-    return Object.values(filters).filter(value => value !== '').length + (searchQuery ? 1 : 0);
-  }, [filters, searchQuery]);
+    let count = 0;
+    if (filters.search) count++;
+    if (filters.make) count++;
+    if (filters.model) count++;
+    if (filters.yearFrom) count++;
+    if (filters.yearTo) count++;
+    if (filters.priceFrom) count++;
+    if (filters.priceTo) count++;
+    if (filters.mileageFrom) count++;
+    if (filters.mileageTo) count++;
+    if (filters.fuelType) count++;
+    if (filters.transmission) count++;
+    if (filters.bodyType) count++;
+    if (filters.color) count++;
+    if (filters.category) count++;
+    if (filters.featured) count++;
+    return count;
+  }, [filters]);
 
   // Gelişmiş filtreleme mantığı
   const filteredCars = useMemo(() => {
     return cars.filter((car) => {
       // Arama sorgusu kontrolü
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase();
         const searchMatch = (
           car.make.toLowerCase().includes(query) ||
           car.model.toLowerCase().includes(query) ||
@@ -318,21 +399,25 @@ export default function IncomingCarsPage() {
         if (!searchMatch) return false;
       }
 
-      // Filtre kontrolleri
+      // Filtre kontrolleri (inventory sayfasıyla aynı format)
       if (filters.make && car.make !== filters.make) return false;
-      if (filters.year_min && car.year < parseInt(filters.year_min)) return false;
-      if (filters.year_max && car.year > parseInt(filters.year_max)) return false;
-      if (filters.price_min && car.price && car.price < parseInt(filters.price_min)) return false;
-      if (filters.price_max && car.price && car.price > parseInt(filters.price_max)) return false;
-      if (filters.fuel_type && car.fuelType !== filters.fuel_type) return false;
+      if (filters.model && car.model !== filters.model) return false;
+      if (filters.yearFrom && car.year < parseInt(filters.yearFrom)) return false;
+      if (filters.yearTo && car.year > parseInt(filters.yearTo)) return false;
+      if (filters.priceFrom && car.price && car.price < parseInt(filters.priceFrom)) return false;
+      if (filters.priceTo && car.price && car.price > parseInt(filters.priceTo)) return false;
+      if (filters.mileageFrom && car.mileage && car.mileage < parseInt(filters.mileageFrom)) return false;
+      if (filters.mileageTo && car.mileage && car.mileage > parseInt(filters.mileageTo)) return false;
+      if (filters.fuelType && car.fuelType !== filters.fuelType) return false;
       if (filters.transmission && car.transmission !== filters.transmission) return false;
-      if (filters.body_type && car.bodyType !== filters.body_type) return false;
-      if (filters.plate_status && car.plateStatus !== filters.plate_status) return false;
-      if (filters.category_id && car.category?.name !== filters.category_id) return false;
+      if (filters.bodyType && car.bodyType !== filters.bodyType) return false;
+      if (filters.color && car.color !== filters.color) return false;
+      if (filters.category && car.category?.name !== filters.category) return false;
+      if (filters.featured && !car.featured) return false;
 
       return true;
     });
-  }, [cars, searchQuery, filters]);
+  }, [cars, searchTerm, filters]);
 
   // Sıralama mantığı
   const sortedCars = useMemo(() => {
@@ -393,7 +478,7 @@ export default function IncomingCarsPage() {
   return (
     <>
       <Head>
-        <title>{t('incomingCars.hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC Premium Araç Galerisi</title>
+        <title>{t('incomingCars.hero.title')} - Mustafa Cangil Auto Trading Ltd. | KKTC 2. El Ve Plakasız Araç Alım & Satım</title>
         <meta name="description" content={t('incomingCars.hero.subtitle')} />
         <meta name="keywords" content="yolda gelen araçlar, KKTC araç, Mustafa Cangil Auto Trading Ltd., yurt dışı araç, lüks araç, Lefkoşa araç galerisi, Girne araç galerisi, beklenen araçlar" />
         
@@ -495,19 +580,45 @@ export default function IncomingCarsPage() {
                 <input
                   type="text"
                   placeholder={t('incomingCars.hero.searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 text-lg rounded-2xl border-0 shadow-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-900"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    if (searchError) setSearchError(null);
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  className={`w-full pl-12 pr-14 py-4 text-lg rounded-2xl border-0 shadow-lg focus:ring-2 focus:ring-amber-500 focus:outline-none text-gray-900 ${
+                    searchError 
+                      ? 'border-red-400 focus:ring-red-400' 
+                      : 'border-white/20 focus:ring-amber-400'
+                  }`}
                 />
-                {searchQuery && (
-                  <button
-                    onClick={() => handleSearchChange('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
+                <button
+                  onClick={handleSearch}
+                  disabled={isSearching}
+                  className="absolute right-2 top-2 h-10 w-10 bg-amber-400 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center transition-colors duration-300"
+                >
+                  {isSearching ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-900 border-t-transparent"></div>
+                  ) : (
+                    <Search className="h-5 w-5 text-gray-900" />
+                  )}
+                </button>
               </div>
+              
+              {/* Search Error */}
+              {searchError && (
+                <div className="mt-2 text-red-300 text-sm text-center flex items-center justify-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  {searchError}
+                </div>
+              )}
+              
+              {/* Search Hint */}
+              {searchTerm && searchTerm.length > 0 && searchTerm.length < 2 && (
+                <div className="mt-2 text-yellow-300 text-sm text-center">
+                  En az 2 karakter girin
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -544,16 +655,59 @@ export default function IncomingCarsPage() {
           </div>
 
           {/* Filter Content - Always Visible */}
-          <AdvancedFilters
-            filters={filters}
-            onFilterChange={handleFilterChange}
+          <ModernFilters
+            filters={{
+              make: filters.make,
+              model: filters.model,
+              year: filters.yearFrom || filters.yearTo ? `${filters.yearFrom || ''}-${filters.yearTo || ''}` : undefined,
+              yearFrom: filters.yearFrom,
+              yearTo: filters.yearTo,
+              priceSort: filters.priceSort,
+              bodyType: filters.bodyType
+            }}
+            onFilterChange={(filter, value) => {
+              if (filter === 'make') {
+                handleFilterChange('make', value);
+                // when make changes, clear the model selection
+                handleFilterChange('model', '');
+              } else if (filter === 'model') {
+                handleFilterChange('model', value);
+              } else if (filter === 'year') {
+                const [yearFrom, yearTo] = (value || '').split('-');
+                handleFilterChange('yearFrom', yearFrom || '');
+                handleFilterChange('yearTo', yearTo || '');
+              } else if (filter === 'yearFrom') {
+                handleFilterChange('yearFrom', value);
+              } else if (filter === 'yearTo') {
+                handleFilterChange('yearTo', value);
+              } else if (filter === 'priceSort') {
+                handleFilterChange('priceSort', value);
+              } else if (filter === 'bodyType') {
+                handleFilterChange('bodyType', value);
+              } else if (filter === 'fuelType') {
+                handleFilterChange('fuelType', value);
+              } else if (filter === 'transmission') {
+                handleFilterChange('transmission', value);
+              } else if (filter === 'color') {
+                handleFilterChange('color', value);
+              } else if (filter === 'category') {
+                handleFilterChange('category', value);
+              } else if (filter === 'priceFrom') {
+                handleFilterChange('priceFrom', value);
+              } else if (filter === 'priceTo') {
+                handleFilterChange('priceTo', value);
+              } else if (filter === 'mileageFrom') {
+                handleFilterChange('mileageFrom', value);
+              } else if (filter === 'mileageTo') {
+                handleFilterChange('mileageTo', value);
+              }
+            }}
             onApplyFilters={() => {}}
             onClearFilters={onClearFilters}
             makes={makes}
             models={models}
             cars={cars}
             bodyTypes={bodyTypes}
-            plateStatuses={plateStatuses}
           />
         </div>
       </div>

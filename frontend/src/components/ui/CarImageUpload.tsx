@@ -1,16 +1,116 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, X, Link, Image as ImageIcon, GripVertical, Trash2 } from 'lucide-react';
+import { Upload, X, Link, Image as ImageIcon, GripVertical, Trash2, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import apiClient from '@/lib/api';
+import { getImageUrl } from '@/lib/urlUtils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface CarImage {
   id?: number;
   imagePath: string;
   sortOrder: number;
   altText?: string;
+}
+
+interface UploadingImage {
+  file: File;
+  preview: string;
+  status: 'uploading' | 'success' | 'error';
+  progress?: number;
+}
+
+interface SortableImageProps {
+  image: CarImage;
+  index: number;
+  onRemove: (imageId: number) => void;
+}
+
+function SortableImage({ image, index, onRemove }: SortableImageProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id || index });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group"
+    >
+      <div className="relative w-full h-32 bg-prestige-card rounded-xl overflow-hidden border-2 border-prestige-gold/20">
+        <Image
+          src={getImageUrl(image.imagePath)}
+          alt={image.altText || 'Gallery Image'}
+          fill
+          className="object-cover"
+          sizes="200px"
+          unoptimized
+        />
+        
+        {/* Drag Handle */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-1 right-1 bg-prestige-gold/80 hover:bg-prestige-gold text-prestige-black p-1 rounded cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical className="h-3 w-3" />
+        </div>
+        
+        {/* Controls */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="destructive"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              image.id && onRemove(image.id);
+            }}
+            className="h-8 w-8 p-0"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Sort Order Indicator */}
+      <div className="absolute top-1 left-1 bg-prestige-gold text-prestige-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+        {index + 1}
+      </div>
+    </div>
+  );
 }
 
 interface CarImageUploadProps {
@@ -33,8 +133,16 @@ export function CarImageUpload({
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>([]);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleCoverImageUpload = async (file: File) => {
     setUploadingCover(true);
@@ -51,15 +159,70 @@ export function CarImageUpload({
 
   const handleGalleryImagesUpload = async (files: File[]) => {
     setUploadingGallery(true);
+    
+    // Create preview images
+    const previewImages: UploadingImage[] = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      status: 'uploading' as const,
+      progress: 0
+    }));
+    
+    setUploadingImages(prev => [...prev, ...previewImages]);
+    
     try {
-      const response = await apiClient.uploadCarGalleryImages(carId, files);
-      const newImages = response.images.map((img: any) => ({
-        id: img.id,
-        imagePath: img.imagePath,
-        sortOrder: img.sortOrder,
-        altText: `${carId} - Image ${img.sortOrder + 1}`
-      }));
-      onGalleryImagesChange([...galleryImages, ...newImages]);
+      // Upload files one by one to track progress
+      const uploadedImages: CarImage[] = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const previewIndex = uploadingImages.length + i;
+        
+        try {
+          // Update progress
+          setUploadingImages(prev => 
+            prev.map((img, idx) => 
+              idx === previewIndex ? { ...img, progress: 50 } : img
+            )
+          );
+          
+          const response = await apiClient.uploadCarGalleryImages(carId, [file]);
+          const newImage = {
+            id: response.images[0].id,
+            imagePath: response.images[0].imagePath,
+            sortOrder: response.images[0].sortOrder,
+            altText: `${carId} - Image ${galleryImages.length + uploadedImages.length + 1}`
+          };
+          
+          uploadedImages.push(newImage);
+          
+          // Update status to success
+          setUploadingImages(prev => 
+            prev.map((img, idx) => 
+              idx === previewIndex ? { ...img, status: 'success' as const, progress: 100 } : img
+            )
+          );
+        } catch (error) {
+          // Update status to error
+          setUploadingImages(prev => 
+            prev.map((img, idx) => 
+              idx === previewIndex ? { ...img, status: 'error' as const } : img
+            )
+          );
+          console.error(`Error uploading ${file.name}:`, error);
+        }
+      }
+      
+      // Add successful uploads to gallery
+      if (uploadedImages.length > 0) {
+        onGalleryImagesChange([...galleryImages, ...uploadedImages]);
+      }
+      
+      // Clear uploading images after 2 seconds
+      setTimeout(() => {
+        setUploadingImages([]);
+      }, 2000);
+      
     } catch (error) {
       console.error('Error uploading gallery images:', error);
       alert('Gallery images upload failed');
@@ -116,22 +279,32 @@ export function CarImageUpload({
 
   const handleReorderImages = async (newOrder: CarImage[]) => {
     try {
-      const imageIds = newOrder.map(img => img.id!);
+      // Update sortOrder for each image
+      const updatedOrder = newOrder.map((img, index) => ({
+        ...img,
+        sortOrder: index
+      }));
+      
+      const imageIds = updatedOrder.map(img => img.id!);
       await apiClient.reorderCarImages(carId, imageIds);
-      onGalleryImagesChange(newOrder);
+      onGalleryImagesChange(updatedOrder);
     } catch (error) {
       console.error('Error reordering images:', error);
       alert('Failed to reorder images');
     }
   };
 
-  const moveImage = (index: number, direction: 'up' | 'down') => {
-    const newOrder = [...galleryImages];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    if (newIndex >= 0 && newIndex < newOrder.length) {
-      [newOrder[index], newOrder[newIndex]] = [newOrder[newIndex], newOrder[index]];
-      handleReorderImages(newOrder);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = galleryImages.findIndex((img, index) => (img.id || index) === active.id);
+      const newIndex = galleryImages.findIndex((img, index) => (img.id || index) === over.id);
+      
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(galleryImages, oldIndex, newIndex);
+        handleReorderImages(newOrder);
+      }
     }
   };
 
@@ -147,7 +320,7 @@ export function CarImageUpload({
           <div className="relative">
             <div className="relative w-full h-64 bg-prestige-card rounded-2xl overflow-hidden border-2 border-prestige-gold/20">
               <Image
-                src={coverImage.startsWith('http') ? coverImage : `http://localhost:3001${coverImage}`}
+                src={getImageUrl(coverImage)}
                 alt="Cover Image"
                 fill
                 className="object-cover"
@@ -248,75 +421,80 @@ export function CarImageUpload({
           />
         </div>
 
-        {/* Gallery Images Grid */}
-        {galleryImages.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {galleryImages
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-              .map((image, index) => (
-                <div key={image.id || index} className="relative group">
+        {/* Uploading Images Preview */}
+        {uploadingImages.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-prestige-gray">Uploading Images:</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {uploadingImages.map((uploadingImg, index) => (
+                <div key={index} className="relative">
                   <div className="relative w-full h-32 bg-prestige-card rounded-xl overflow-hidden border-2 border-prestige-gold/20">
                     <Image
-                      src={image.imagePath.startsWith('http') ? image.imagePath : `http://localhost:3001${image.imagePath}`}
-                      alt={image.altText || 'Gallery Image'}
+                      src={uploadingImg.preview}
+                      alt="Uploading preview"
                       fill
                       className="object-cover"
                       sizes="200px"
                       unoptimized
                     />
                     
-                    {/* Controls */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          moveImage(index, 'up');
-                        }}
-                        disabled={index === 0}
-                        className="h-8 w-8 p-0"
-                      >
-                        ↑
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          moveImage(index, 'down');
-                        }}
-                        disabled={index === galleryImages.length - 1}
-                        className="h-8 w-8 p-0"
-                      >
-                        ↓
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          image.id && handleRemoveGalleryImage(image.id);
-                        }}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    {/* Upload Status Overlay */}
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      {uploadingImg.status === 'uploading' && (
+                        <div className="text-center text-white">
+                          <Loader2 className="h-6 w-6 animate-spin mx-auto mb-1" />
+                          <div className="text-xs">Uploading...</div>
+                          {uploadingImg.progress && (
+                            <div className="w-16 bg-gray-300 rounded-full h-1 mt-1">
+                              <div 
+                                className="bg-prestige-gold h-1 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadingImg.progress}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {uploadingImg.status === 'success' && (
+                        <CheckCircle className="h-8 w-8 text-green-500" />
+                      )}
+                      {uploadingImg.status === 'error' && (
+                        <AlertCircle className="h-8 w-8 text-red-500" />
+                      )}
                     </div>
-                  </div>
-                  
-                  {/* Sort Order Indicator */}
-                  <div className="absolute top-1 left-1 bg-prestige-gold text-prestige-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {index + 1}
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Gallery Images Grid */}
+        {(galleryImages.length > 0 || uploadingImages.length > 0) && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-prestige-gray">Gallery Images:</h4>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={galleryImages.map((img, index) => img.id || index)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {galleryImages
+                    .sort((a, b) => a.sortOrder - b.sortOrder)
+                    .map((image, index) => (
+                      <SortableImage
+                        key={image.id || index}
+                        image={image}
+                        index={index}
+                        onRemove={handleRemoveGalleryImage}
+                      />
+                    ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
         )}
       </div>

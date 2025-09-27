@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Car, Heart, ArrowRight, ChevronLeft, ChevronRight, Eye, Scale, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface SoldCarCardProps {
   car: {
@@ -69,7 +70,7 @@ export function SoldCarCard({ car, locale, viewMode = 'grid', onQuickView, onCom
     // Add cover image if exists
     if (car.coverImage) {
       images.push({
-        imagePath: car.coverImage.startsWith('http') ? car.coverImage : `http://localhost:3001${car.coverImage}`,
+        imagePath: getImageUrl(car.coverImage),
         isMain: true,
         sortOrder: 0,
         altText: `${car.year} ${car.make} ${car.model}`
@@ -79,7 +80,7 @@ export function SoldCarCard({ car, locale, viewMode = 'grid', onQuickView, onCom
     // Add other images
     if (car.images && car.images.length > 0) {
       car.images.forEach((img) => {
-        const imagePath = img.imagePath.startsWith('http') ? img.imagePath : `http://localhost:3001${img.imagePath}`;
+        const imagePath = getImageUrl(img.imagePath);
         images.push({
           imagePath,
           isMain: img.isMain,
@@ -237,7 +238,7 @@ export function SoldCarCard({ car, locale, viewMode = 'grid', onQuickView, onCom
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 hover:text-green-600 transition-colors duration-200 line-clamp-1">
                   {car.make} {car.model}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">{car.year} • {car.mileage.toLocaleString()} km</p>
+                <p className="text-sm text-gray-600 mb-3">{car.year} • {car.mileage ? car.mileage.toLocaleString() : 'N/A'} km</p>
               </Link>
 
               {/* Grid View - Sadece temel bilgiler */}
@@ -399,7 +400,7 @@ export function SoldCarCard({ car, locale, viewMode = 'grid', onQuickView, onCom
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 hover:text-green-600 transition-colors duration-200">
                       {car.make} {car.model}
                     </h3>
-                    <p className="text-gray-600">{car.year} - {car.mileage.toLocaleString()} km</p>
+                    <p className="text-gray-600">{car.year} - {car.mileage ? car.mileage.toLocaleString() : 'N/A'} km</p>
                   </Link>
                 </div>
                 <div className="flex items-center space-x-4">

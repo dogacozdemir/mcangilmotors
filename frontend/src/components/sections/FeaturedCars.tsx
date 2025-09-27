@@ -174,11 +174,14 @@ export function AvailableStock() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            <div 
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
+              style={{ gridAutoRows: '1fr' }}
+            >
               {displayedCars.map((car, index) => (
                 <div 
                   key={car.id} 
-                  className="prestige-grid-item prestige-card"
+                  className="prestige-grid-item prestige-card h-full flex flex-col"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <CarCard 

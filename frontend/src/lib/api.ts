@@ -2,7 +2,7 @@ import { cache, CACHE_KEYS, CACHE_TTL } from './cache';
 import { useAPICache } from '@/hooks/useCache';
 import { getApiUrl } from './urlUtils';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 class ApiClient {
   private baseUrl: string;
@@ -464,6 +464,7 @@ class ApiClient {
     });
   }
 
+
   async getCarImages(carId: number) {
     return this.request(`/car-images/${carId}/images`);
   }
@@ -523,7 +524,8 @@ class ApiClient {
 }
 
 // Create API client instance
-const apiClientInstance = new ApiClient(API_BASE_URL);
+const cleanApiBase = API_BASE_URL.replace(/\/api\/?$/, '');
+const apiClientInstance = new ApiClient(`${cleanApiBase}/api`);
 
 // Export modular API client
 export const apiClient = {

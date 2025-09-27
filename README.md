@@ -172,5 +172,5 @@ This project is licensed under the MIT License.
 **Mustafa Cangil Auto Trading Ltd.**
 - Website: [mcangilmotors.com](https://mcangilmotors.com)
 - Phone: +90 533 855 11 66
-- Email: info@mcangilmotors.com
+- Email: m.cangilmotors@gmail.com
 - Address: Sakarya Sk No:10, Alsancak 2435, KKTC

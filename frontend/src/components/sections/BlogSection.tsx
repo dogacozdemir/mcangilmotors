@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import apiClient from '@/lib/api';
 import { motion } from 'framer-motion';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface BlogPost {
   id: number;
@@ -133,7 +134,7 @@ export function BlogSection() {
             {posts.slice(0, 3).map((post, index) => {
               const translation = getPostTranslation(post);
               const mainImage = post.imgUrl || (post.images.find(img => img.isMain)?.imagePath);
-              const imageUrl = mainImage?.startsWith('http') ? mainImage : mainImage ? `http://localhost:3001${mainImage}` : null;
+              const imageUrl = mainImage ? getImageUrl(mainImage) : null;
               
               return (
                 <motion.article

@@ -73,17 +73,13 @@ export function WhyChooseUs() {
         {/* Stats */}
         <div className="bg-prestige-card shadow-prestige rounded-3xl border border-prestige-border p-8 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-prestige-gold via-prestige-gold-light to-prestige-gold"></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="group prestige-card">
               <div className="text-xl font-proxima-nova font-bold text-prestige-gold mb-2 group-hover:scale-110 transition-transform duration-300">500+</div>
               <div className="text-prestige-gray text-sm font-proxima-nova font-medium group-hover:text-prestige-black transition-colors duration-300">{t('stats.happyCustomers')}</div>
             </div>
             <div className="group prestige-card">
-              <div className="text-xl font-proxima-nova font-bold text-prestige-gold mb-2 group-hover:scale-110 transition-transform duration-300">1000+</div>
-              <div className="text-prestige-gray text-sm font-proxima-nova font-medium group-hover:text-prestige-black transition-colors duration-300">{t('stats.soldCars')}</div>
-            </div>
-            <div className="group prestige-card">
-              <div className="text-xl font-proxima-nova font-bold text-prestige-gold mb-2 group-hover:scale-110 transition-transform duration-300">25+</div>
+              <div className="text-xl font-proxima-nova font-bold text-prestige-gold mb-2 group-hover:scale-110 transition-transform duration-300">5+</div>
               <div className="text-prestige-gray text-sm font-proxima-nova font-medium group-hover:text-prestige-black transition-colors duration-300">{t('stats.yearsExperience')}</div>
             </div>
             <div className="group prestige-card">

@@ -577,6 +577,7 @@
   border: 1px solid var(--prestige-border);
   position: relative;
   overflow: hidden;
+  min-height: 100%;
 }
 
 .premium-card::before {
@@ -605,6 +606,80 @@
 .premium-card > * {
   position: relative;
   z-index: 2;
+}
+
+/* Mobile responsive grid fixes */
+@media (max-width: 640px) {
+  .premium-card {
+    min-height: 400px;
+  }
+  
+  .grid {
+    gap: 1rem;
+  }
+}
+
+/* Mobile Menu Animations */
+@keyframes slideDownFromTop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpToTop {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.mobile-menu-dropdown {
+  animation: slideDownFromTop 0.3s ease-out forwards;
+  scrollbar-width: thin;
+  scrollbar-color: #D3AF77 #374151;
+}
+
+.mobile-menu-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mobile-menu-dropdown::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.mobile-menu-dropdown::-webkit-scrollbar-thumb {
+  background: #D3AF77;
+  border-radius: 2px;
+}
+
+.mobile-menu-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #B8941F;
+}
+
+/* Mobile menu item animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-menu-item {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0;
 }
 
 .prestige-button {

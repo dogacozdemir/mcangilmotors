@@ -56,11 +56,11 @@ export async function generateMetadata({ params }: { params: { locale: string } 
       "Vehicle Import"
     ],
     openingHours: [
-      "Mo-Fr 09:00-18:00",
+      "Mo-Fr 08:00-19:00",
       "Sa 09:00-16:00"
     ],
     telephone: "+90-533-855-11-66",
-    email: "info@mcangilmotors.com",
+    email: "m.cangilmotors@gmail.com",
     address: {
       streetAddress: "Sakarya Sk No:10",
       addressLocality: "Alsancak",
@@ -124,11 +124,11 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         "Vehicle Import"
       ],
       openingHours: [
-        "Mo-Fr 09:00-18:00",
+        "Mo-Fr 08:00-19:00",
         "Sa 09:00-16:00"
       ],
       telephone: "+90-533-855-11-66",
-      email: "info@mcangilmotors.com",
+      email: "m.cangilmotors@gmail.com",
       address: {
         streetAddress: "Lefkoşa Merkez",
         addressLocality: "Lefkoşa",

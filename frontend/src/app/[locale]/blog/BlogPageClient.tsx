@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Calendar, Clock, ArrowRight, Search } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { BlogBreadcrumb } from '@/components/ui/Breadcrumb';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface BlogPost {
   id: number;
@@ -41,7 +42,7 @@ export default function BlogPageClient() {
     const fetchPosts = async () => {
       try {
         console.log('Fetching blog posts...');
-        const response = await apiClient.getBlogPosts() as any;
+        const response = await apiClient.getBlogPosts({ limit: 100 }) as any; // Get more posts
         console.log('Blog posts response:', response);
         // Backend returns { posts: [...], pagination: {...} }
         const posts = response.posts || response;
@@ -57,8 +58,22 @@ export default function BlogPageClient() {
     fetchPosts();
   }, []);
 
-  const getImageUrl = (imagePath: string) => {
-    return imagePath.startsWith('http') ? imagePath : `http://localhost:3001${imagePath}`;
+  const getBlogImageUrl = (post: any) => {
+    // Check for imgUrl first
+    if (post.imgUrl) {
+      return getImageUrl(post.imgUrl);
+    }
+    
+    // Check for main image in images array
+    if (post.images && post.images.length > 0) {
+      const mainImage = post.images.find((img: any) => img.isMain) || post.images[0];
+      if (mainImage?.imagePath) {
+        return getImageUrl(mainImage.imagePath);
+      }
+    }
+    
+    // Fallback to placeholder
+    return '/blog/placeholder.jpg';
   };
 
   const formatDate = (dateString: string) => {
@@ -97,28 +112,28 @@ export default function BlogPageClient() {
       
       {/* Premium Hero Section */}
       <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               {t('hero.title')}
             </h1>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-3xl mx-auto">
               {t('hero.subtitle').split(t('hero.subtitleHighlight'))[0]}
               <span className="text-amber-400 font-semibold">{t('hero.subtitleHighlight')}</span>
               {t('hero.subtitle').split(t('hero.subtitleHighlight'))[1]}
             </p>
-            <div className="flex items-center justify-center gap-8 text-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-8 text-base sm:text-lg">
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">{posts.length}</div>
-                <div className="text-gray-300">{t('hero.stats.blogPosts')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">{posts.length}</div>
+                <div className="text-gray-300 text-sm sm:text-base">{t('hero.stats.blogPosts')}</div>
               </div>
-              <div className="w-px h-12 bg-gray-600"></div>
+              <div className="hidden sm:block w-px h-8 lg:h-12 bg-gray-600"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">{t('hero.stats.weeklyUpdate')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">{t('hero.stats.weeklyUpdate')}</div>
               </div>
-              <div className="w-px h-12 bg-gray-600"></div>
+              <div className="hidden sm:block w-px h-8 lg:h-12 bg-gray-600"></div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-amber-400">{t('hero.stats.expertContent')}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">{t('hero.stats.expertContent')}</div>
               </div>
             </div>
           </div>
@@ -181,7 +196,6 @@ export default function BlogPageClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post) => {
                 const translation = post.translations.find(t => t.lang === locale) || post.translations[0];
-                const mainImage = post.images?.find(img => img.isMain) || post.images?.[0];
                 
                 return (
                   <article 
@@ -190,9 +204,9 @@ export default function BlogPageClient() {
                   >
                     {/* Image */}
                     <div className="relative aspect-[16/9] overflow-hidden">
-                      {mainImage ? (
+                      {(post.imgUrl || (post.images && post.images.length > 0)) ? (
                         <Image
-                          src={getImageUrl(mainImage.imagePath)}
+                          src={getBlogImageUrl(post)}
                           alt={translation?.title || 'Blog yazısı'}
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-110"

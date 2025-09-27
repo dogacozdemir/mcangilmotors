@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import apiClient from '@/lib/api';
 import { RelatedPosts } from '@/components/sections/RelatedPosts';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface BlogPost {
   id: number;
@@ -19,6 +21,11 @@ interface BlogPost {
     content: string;
     seoTitle?: string;
     seoDescription?: string;
+  }>;
+  images: Array<{
+    id: number;
+    imagePath: string;
+    isMain: boolean;
   }>;
 }
 
@@ -82,28 +89,68 @@ export default function BlogPostPage() {
   }
 
   const translation = post.translations?.[0];
+  const mainImage = post.images?.find(img => img.isMain) || post.images?.[0];
+
+  const getBlogImageUrl = (imagePath: string) => {
+    return getImageUrl(imagePath);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <nav className="mb-4">
-            <Link
-              href={`/${locale}/blog`}
-              className="text-brand-primary hover:text-brand-primary-dark"
-            >
-              ← Blog&apos;a Dön
-            </Link>
-          </nav>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {translation?.title || 'Blog Yazısı'}
-          </h1>
-          <p className="mt-2 text-gray-600">
-            {new Date(post.createdAt).toLocaleDateString('tr-TR')}
-          </p>
+      {/* Hero Image */}
+      {mainImage && (
+        <div className="relative h-96 w-full">
+          <Image
+            src={getBlogImageUrl(mainImage.imagePath)}
+            alt={translation?.title || 'Blog yazısı'}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          <div className="absolute bottom-0 left-0 right-0 p-8">
+            <div className="max-w-4xl mx-auto">
+              <nav className="mb-4">
+                <Link
+                  href={`/${locale}/blog`}
+                  className="text-white hover:text-amber-300 transition-colors duration-300"
+                >
+                  ← Blog&apos;a Dön
+                </Link>
+              </nav>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                {translation?.title || 'Blog Yazısı'}
+              </h1>
+              <p className="text-gray-200">
+                {new Date(post.createdAt).toLocaleDateString('tr-TR')}
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Header - Only show if no image */}
+      {!mainImage && (
+        <div className="bg-white shadow">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <nav className="mb-4">
+              <Link
+                href={`/${locale}/blog`}
+                className="text-brand-primary hover:text-brand-primary-dark"
+              >
+                ← Blog&apos;a Dön
+              </Link>
+            </nav>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {translation?.title || 'Blog Yazısı'}
+            </h1>
+            <p className="mt-2 text-gray-600">
+              {new Date(post.createdAt).toLocaleDateString('tr-TR')}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

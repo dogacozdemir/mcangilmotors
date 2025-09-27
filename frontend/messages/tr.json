@@ -18,6 +18,8 @@
     "submit": "Gönder",
     "reset": "Sıfırla",
     "confirm": "Onayla",
+    "contactUs": "Ulaşın",
+    "contactForPrice": "Fiyat için iletişime geçin",
     "yes": "Evet",
     "no": "Hayır"
   },
@@ -31,12 +33,12 @@
   },
   "home": {
     "title": "Mustafa Cangil Auto Trading Ltd. - KKTC'nin En Güvenilir Araç Galerisi",
-    "subtitle": "Premium Araç Galerisi",
-    "description": "KKTC'nin en güvenilir araç galerisi. Lefkoşa ve Girne'de 25+ yıllık deneyimle kaliteli ikinci el araçlar, lüks otomobiller ve güvenilir hizmet. Araç finansmanı, test sürüşü ve 7/24 müşteri desteği.",
+    "subtitle": "2. El Ve Plakasız Araç Alım & Satım",
+    "description": "KKTC'nin en güvenilir araç galerisi. Lefkoşa ve Girne'de 5+ yıllık deneyimle kaliteli ikinci el araçlar, lüks otomobiller ve güvenilir hizmet. Araç finansmanı, test sürüşü ve 7/24 müşteri desteği.",
     "hero": {
-      "title": "KKTC'nin Araç",
-      "titleHighlight": "Galerisi",
-      "subtitle": "KKTC'nin en prestijli araç galerisinde hayalinizdeki aracı bulun. Kaliteli, güvenilir ve uygun fiyatlı seçeneklerimizle tanışın.",
+      "title": "Kuzey Kıbrıs'ın En Güvenilir",
+      "titleHighlight": "Oto Galerisi",
+      "subtitle": "KKTC'nin en güvenilir araç galerisinde hayalinizdeki aracı bulun. Kaliteli, güvenilir ve uygun fiyatlı seçeneklerimizle tanışın.",
       "searchPlaceholder": "Marka, model veya özellik ara...",
       "viewAllCars": "Tüm Araçları Gör",
       "aboutUs": "Hakkımızda",
@@ -67,7 +69,7 @@
     },
     "brands": {
       "title": "Güvenilir Markalar",
-      "subtitle": "Dünyanın en prestijli otomotiv markalarıyla çalışıyoruz"
+      "subtitle": "Dünyanın en güvenilir otomotiv markalarıyla çalışıyoruz"
     },
     "blog": {
       "title": "Son Haberler ve Makaleler",
@@ -79,8 +81,8 @@
     "title": "KKTC Araç Envanteri - İkinci El Araba Satış",
     "description": "KKTC'nin en geniş araç envanteri. Lefkoşa ve Girne'de BMW, Mercedes, Audi, Toyota, Honda ve daha fazla marka. İkinci el araçlar, lüks otomobiller ve uygun fiyatlı seçenekler.",
     "hero": {
-      "title": "Premium Araç Galerisi",
-      "subtitle": "KKTC'nin en prestijli araç galerisinde hayalinizdeki aracı bulun.",
+      "title": "2. El Ve Plakasız Araç Alım & Satım",
+      "subtitle": "KKTC'nin en güvenilir araç galerisinde hayalinizdeki aracı bulun.",
       "searchPlaceholder": "Marka, model, yıl veya özellik ara...",
       "loadingCars": "Premium araçlar yükleniyor..."
     },
@@ -221,7 +223,7 @@
     "subtitle": "KKTC'deki Güvenilir Partneriniz",
     "hero": {
       "title": "Mustafa Cangil Auto Trading Ltd. Hakkında",
-      "subtitle": "25 yılı aşkın deneyimle KKTC'nin en güvenilir araç galerisi"
+      "subtitle": "5 yılı aşkın deneyimle KKTC'nin en güvenilir araç galerisi"
     }
   },
   "contact": {
@@ -231,11 +233,13 @@
     "phone": "Telefon",
     "email": "E-posta",
     "whatsapp": "WhatsApp",
-    "socialMedia": "Sosyal Medya",
+    "socialMedia": {
+      "title": "Sosyal Medya"
+    },
     "contactForm": "İletişim Formu",
     "sendMessage": "Mesaj Gönder",
     "businessHours": "Çalışma Saatleri",
-    "mondayToFriday": "Pazartesi - Cuma: 09:00 - 18:00",
+    "mondayToFriday": "Pazartesi - Cuma: 08:00 - 19:00",
     "saturday": "Cumartesi: 09:00 - 16:00",
     "sunday": "Pazar: Kapalı",
     "hero": {
@@ -257,7 +261,7 @@
       "address": "Adres",
       "addressText": "Lefkoşa, KKTC",
       "workingHours": "Çalışma Saatleri",
-      "workingHoursText": "Pazartesi - Cumartesi: 09:00 - 18:00"
+      "workingHoursText": "Pazartesi - Cumartesi: 08:00 - 19:00"
     },
     "form": {
       "title": "Mesaj Gönderin",
@@ -312,12 +316,11 @@
   "about": {
     "title": "Hakkımızda - Mustafa Cangil Auto Trading Ltd. KKTC",
     "subtitle": "Mustafa Cangil Auto Trading Ltd.",
-    "description": "KKTC'nin en güvenilir araç galerisi olarak, Lefkoşa ve Girne'de 25+ yıllık deneyimle kaliteli ve güvenilir araçlar sunmaktan gurur duyuyoruz. İkinci el araç satışı, araç finansmanı ve 7/24 müşteri desteği.",
+    "description": "KKTC'nin en güvenilir araç galerisi olarak, Lefkoşa ve Girne'de 5+ yıllık deneyimle kaliteli ve güvenilir araçlar sunmaktan gurur duyuyoruz. İkinci el araç satışı, araç finansmanı ve 7/24 müşteri desteği.",
     "hero": {
-      "subtitle": "KKTC'nin en prestijli araç galerisi olarak 25 yılı aşkın süredir premium araç deneyimi sunuyoruz",
+      "subtitle": "KKTC'nin en güvenilir araç galerisi olarak 5 yılı aşkın süredir premium araç deneyimi sunuyoruz",
       "yearsExperience": "Yıl Deneyim",
       "happyCustomers": "Mutlu Müşteri",
-      "soldCars": "Satılan Araç",
       "loading": "Yükleniyor..."
     },
     "mission": "Misyonumuz",
@@ -327,7 +330,7 @@
     "values": "Değerlerimiz",
     "valuesText": "Güven, kalite, müşteri memnuniyeti ve profesyonellik değerlerimizle hizmet veriyoruz. Her işlemimizde şeffaflık ve dürüstlük ilkelerimizi koruyoruz.",
     "experience": "Deneyimimiz",
-    "experienceText": "25 yılı aşkın süredir sektörde faaliyet gösteriyoruz. Bu süre zarfında binlerce müşteriye hizmet verdik ve sektörde güvenilir bir isim haline geldik.",
+    "experienceText": "5 yılı aşkın süredir sektörde faaliyet gösteriyoruz. Bu süre zarfında binlerce müşteriye hizmet verdik ve sektörde güvenilir bir isim haline geldik.",
     "serviceArea": "Hizmet Alanımız",
     "serviceAreaText": "KKTC genelinde hizmet veriyoruz. Lefkoşa merkez ofisimiz ve Girne şubemizle müşterilerimize yakın hizmet sunuyoruz."
   },
@@ -354,7 +357,6 @@
     },
     "stats": {
       "happyCustomers": "Mutlu Müşteri",
-      "soldCars": "Satılan Araç",
       "yearsExperience": "Yıl Deneyim",
       "customerSupport": "Müşteri Desteği"
     }
@@ -366,17 +368,17 @@
       {
         "name": "Ahmet Yılmaz",
         "location": "Lefkoşa",
-        "text": "Mustafa Cangil Auto Trading Ltd.'tan aldığım BMW X5 ile çok memnunum. Hizmet kalitesi ve güvenilirlik konusunda hiç tereddüt etmeden tavsiye ederim."
+        "text": "Gerçekten çok memnun kaldım! BMW X5'i aldığımda her şey çok şeffaftı. Mustafa Bey'in ekibi gerçekten işini biliyor. Araç hakkında hiçbir şey gizlemediler, her detayı anlattılar. 6 aydır kullanıyorum, hiçbir sorun yaşamadım."
       },
       {
         "name": "Maria Petrou",
         "location": "Girne",
-        "text": "İkinci el araç alırken çok dikkatliydim ama bu galeri sayesinde güvenle alışveriş yaptım. Araçların kalitesi gerçekten çok iyi."
+        "text": "İkinci el araç almak her zaman stresli olmuştur benim için. Ama burada öyle değil! Ekip çok sabırlıydı, tüm sorularımı yanıtladılar. Araçlar gerçekten temiz ve bakımlı. Ailem de çok beğendi, teşekkürler!"
       },
       {
         "name": "Mehmet Kaya",
         "location": "Mağusa",
-        "text": "Yıllardır araç alıp satıyorum ama Mustafa Cangil Auto Trading Ltd. kadar güvenilir bir galeri görmedim. Müşteri hizmetleri de mükemmel."
+        "text": "25 yıldır araç sektöründeyim, çok galeri gördüm. Ama Mustafa Bey'in yeri farklı. Müşteriye değer veriyorlar, samimi yaklaşıyorlar. Araç alırken de satarken de hep yanımda oldular. Kesinlikle tavsiye ederim!"
       }
     ]
   },
@@ -388,10 +390,12 @@
     "email": "E-posta",
     "address": "Adres",
     "workingHours": "Çalışma Saatleri",
-    "mondayToFriday": "Pazartesi - Cuma: 09:00 - 18:00",
+    "mondayToFriday": "Pazartesi - Cuma: 08:00 - 19:00",
     "saturday": "Cumartesi: 09:00 - 16:00",
     "sunday": "Pazar: Kapalı",
-    "socialMedia": "Sosyal Medya",
+    "socialMedia": {
+      "title": "Sosyal Medya"
+    },
     "sendMessage": "Bize Mesaj Gönderin",
     "name": "Ad Soyad",
     "message": "Mesaj",
@@ -411,7 +415,7 @@
     "page": {
       "hero": {
         "title": "Blog & Haberler",
-        "subtitle": "Otomotiv dünyasından son haberler, araç bakım ipuçları ve premium araç koleksiyonumuz hakkında güncel bilgiler",
+        "subtitle": "Otomotiv dünyasından son haberler, araç bakım ipuçları ve KKTC araç sektörü hakkında güncel bilgiler",
         "subtitleHighlight": "premium araç koleksiyonumuz",
         "stats": {
           "blogPosts": "Blog Yazısı",
@@ -457,21 +461,31 @@
   "footer": {
     "description": "Mustafa Cangil Auto Trading Ltd. - KKTC'nin güvenilir araç galerisi",
     "quickLinks": "Hızlı Linkler",
+    "services": "Hizmetlerimiz",
+    "servicesList": {
+      "carSales": "Araç Alım & Satım",
+      "service": "Servis",
+      "cleaning": "Temizlik ve Bakım",
+      "insurance": "Sigorta"
+    },
     "contactInfo": "İletişim Bilgileri",
+    "contact": "İletişim",
+    "whatsapp": "WhatsApp",
+    "workingHours": "Pazartesi - Cumartesi: 08:00 - 19:00",
     "followUs": "Bizi Takip Edin",
     "allRightsReserved": "Tüm hakları saklıdır",
     "privacyPolicy": "Gizlilik Politikası",
     "termsOfService": "Hizmet Şartları",
     "companyName": "Mustafa Cangil Auto Trading Ltd.",
-    "companyTagline": "Premium Araç Galerisi",
-    "companyDescription": "KKTC'nin en prestijli araç galerisi olarak 25 yılı aşkın süredir premium araç deneyimi sunuyoruz. Kaliteli, güvenilir ve uygun fiyatlı seçeneklerimizle hayalinizdeki aracı bulun.",
+    "companyTagline": "2. El Ve Plakasız Araç Alım & Satım",
+    "companyDescription": "Hayalinizdeki aracı bulmak çok kolay! Kuzey Kıbrıs'ın en prestijli araç galerisi, kaliteli ve güvenilir araçları sizlere sunuyor. Uygun fiyatlarla aracınıza bir adım daha yaklaşın.",
     "services": "Hizmetlerimiz",
     "contact": "İletişim",
     "servicesList": {
-      "carSales": "Araç Satışı",
-      "carRental": "Araç Kiralama",
-      "carEvaluation": "Araç Değerlendirme",
-      "financingSupport": "Finansman Desteği"
+      "carSales": "Araç Alım & Satım",
+      "service": "Servis",
+      "cleaning": "Temizlik ve Bakım",
+      "insurance": "Sigorta"
     },
     "contactInfo": {
       "phone": "Telefon",
@@ -481,11 +495,10 @@
       "workingHours": "Çalışma Saatleri"
     },
     "address": "Lefkoşa, KKTC",
-    "workingHours": "Pazartesi - Cumartesi: 09:00 - 18:00",
+    "workingHours": "Pazartesi - Cumartesi: 08:00 - 19:00",
     "copyright": "© 2025 Nerdy Reptile Digital Solutions Hub. Tüm hakları saklıdır.",
     "stats": {
-      "yearsExperience": "25+ Yıl Deneyim",
-      "soldCars": "1000+ Satılan Araç"
+      "yearsExperience": "5+ Yıl Deneyim"
     }
   }
 }

@@ -59,13 +59,13 @@ const bodyTypes: BodyType[] = [
     }
   },
   {
-    key: 'Cabrio',
-    icon: '/icons/cabrio.png',
+    key: 'Klasik',
+    icon: '/icons/klasik.png',
     label: {
-      tr: 'Cabrio',
-      en: 'Cabrio',
-      ar: 'كابريو',
-      ru: 'Кабриолет'
+      tr: 'Klasik',
+      en: 'Classic',
+      ar: 'كلاسيك',
+      ru: 'Классический'
     }
   },
   {
@@ -107,7 +107,7 @@ export function BodyTypeQuickFilter() {
 
   const handleBodyTypeClick = (bodyType: string) => {
     // Navigate to inventory page with body type filter
-    router.push(`/${locale}/inventory?body_type=${bodyType}`);
+    router.push(`/${locale}/inventory?bodyType=${bodyType}`);
   };
 
   const getLabel = (bodyType: BodyType) => {

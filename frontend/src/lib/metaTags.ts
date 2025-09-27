@@ -108,7 +108,7 @@ export function generateMetaTags(config: MetaTagsConfig): Metadata {
     section,
     tags,
     price,
-    currency = 'EUR',
+    currency = 'GBP',
     availability,
     brand,
     model,
@@ -248,7 +248,7 @@ export function generateJSONLD(config: MetaTagsConfig): object {
     section,
     tags,
     price,
-    currency = 'EUR',
+    currency = 'GBP',
     availability,
     brand,
     model,
@@ -383,7 +383,7 @@ export function generateJSONLD(config: MetaTagsConfig): object {
       ...schema,
       "priceRange": priceRange || "$$",
       "paymentAccepted": paymentAccepted || ["Cash", "Credit Card", "Bank Transfer"],
-      "currenciesAccepted": currenciesAccepted || ["EUR", "TRY", "USD"],
+      "currenciesAccepted": currenciesAccepted || ["GBP", "TRY", "USD"],
       "hasOfferCatalog": hasOfferCatalog || true,
       "areaServed": areaServed || ["KKTC", "Alsancak", "Girne", "Mağusa", "Güzelyurt"],
       "serviceArea": serviceArea || {
@@ -396,7 +396,7 @@ export function generateJSONLD(config: MetaTagsConfig): object {
         "geoRadius": 50000
       },
       "openingHours": openingHours || [
-        "Mo-Fr 09:00-18:00",
+        "Mo-Fr 08:00-19:00",
         "Sa 09:00-16:00"
       ],
       "services": services || [
@@ -413,11 +413,11 @@ export function generateJSONLD(config: MetaTagsConfig): object {
     schema = {
       ...schema,
       "openingHours": openingHours || [
-        "Mo-Fr 09:00-18:00",
+        "Mo-Fr 08:00-19:00",
         "Sa 09:00-16:00"
       ],
       "telephone": telephone || "+90-533-855-11-66",
-      "email": email || "info@mcangilmotors.com",
+      "email": email || "m.cangilmotors@gmail.com",
       "priceRange": priceRange || "$$",
       "paymentAccepted": paymentAccepted || ["Cash", "Credit Card", "Bank Transfer"],
       "areaServed": areaServed || ["KKTC", "Lefkoşa", "Girne", "Mağusa", "Güzelyurt"]
@@ -579,11 +579,11 @@ export function generateAutoDealerSchema(config: Partial<MetaTagsConfig>): objec
       "Trade-in Service"
     ],
     openingHours: config.openingHours || [
-      "Mo-Fr 09:00-18:00",
+      "Mo-Fr 08:00-19:00",
       "Sa 09:00-16:00"
     ],
     paymentAccepted: config.paymentAccepted || ["Cash", "Credit Card", "Bank Transfer"],
-    currenciesAccepted: config.currenciesAccepted || ["EUR", "TRY", "USD"],
+    currenciesAccepted: config.currenciesAccepted || ["GBP", "TRY", "USD"],
     areaServed: config.areaServed || ["KKTC", "Lefkoşa", "Girne", "Mağusa", "Güzelyurt"],
     ...config
   });
@@ -597,11 +597,11 @@ export function generateLocalBusinessSchema(config: Partial<MetaTagsConfig>): ob
     locale: config.locale || 'tr',
     type: 'localbusiness',
     openingHours: config.openingHours || [
-      "Mo-Fr 09:00-18:00",
+      "Mo-Fr 08:00-19:00",
       "Sa 09:00-16:00"
     ],
     telephone: config.telephone || "+90-533-855-11-66",
-    email: config.email || "info@mcangilmotors.com",
+    email: config.email || "m.cangilmotors@gmail.com",
     priceRange: config.priceRange || "$$",
     areaServed: config.areaServed || ["KKTC", "Lefkoşa", "Girne", "Mağusa", "Güzelyurt"],
     ...config
@@ -678,7 +678,7 @@ export function generateNorthernCyprusLocalBusinessSchema(config: Partial<MetaTa
       "https://mcangilmotors.com/logo.png"
     ],
     "telephone": "+90 533 855 11 66",
-    "email": "info@mcangilmotors.com",
+    "email": "m.cangilmotors@gmail.com",
     "address": {
       "@type": "PostalAddress",
         "streetAddress": "Sakarya Sk No:10",
@@ -727,12 +727,12 @@ export function generateNorthernCyprusLocalBusinessSchema(config: Partial<MetaTa
       }
     ],
     "openingHours": [
-      "Mo-Fr 09:00-18:00",
+      "Mo-Fr 08:00-19:00",
       "Sa 09:00-16:00"
     ],
-    "priceRange": "€€€",
+    "priceRange": "£££",
     "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
-    "currenciesAccepted": "EUR, TRY",
+    "currenciesAccepted": "GBP, TRY",
     "languages": ["tr", "en", "ar", "ru"],
     "sameAs": [
       "https://www.facebook.com/mustafacangilmotors",

@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Heart, ArrowRight, Phone, MessageCircle, Calendar, Gauge, Fuel, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/urlUtils';
+import { FrontendXSSProtection } from '@/lib/sanitizer';
+import { PhotoModal } from './PhotoModal';
 
 interface QuickViewModalProps {
   car: {
@@ -30,6 +33,10 @@ interface QuickViewModalProps {
       sortOrder: number;
       altText?: string;
     }>;
+    translations?: Array<{
+      title: string;
+      description: string;
+    }>;
   };
   isOpen: boolean;
   onClose: () => void;
@@ -38,6 +45,9 @@ interface QuickViewModalProps {
 
 export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -52,7 +62,7 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
     const images = [];
     if (car.coverImage) {
       images.push({
-        imagePath: car.coverImage.startsWith('http') ? car.coverImage : `http://localhost:3001${car.coverImage}`,
+        imagePath: getImageUrl(car.coverImage),
         isMain: true,
       });
     }
@@ -60,7 +70,7 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
       car.images.forEach((img) => {
         if (!car.coverImage || img.imagePath !== car.coverImage) {
           images.push({
-            imagePath: img.imagePath.startsWith('http') ? img.imagePath : `http://localhost:3001${img.imagePath}`,
+            imagePath: getImageUrl(img.imagePath),
             isMain: img.isMain,
           });
         }
@@ -88,6 +98,37 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
 
   const goToImage = (index: number) => {
     setCurrentImageIndex(index);
+  };
+
+  // Touch/swipe handlers
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && images.length > 1) {
+      nextImage();
+    }
+    if (isRightSwipe && images.length > 1) {
+      prevImage();
+    }
+  };
+
+  const handleImageClick = () => {
+    setShowPhotoModal(true);
   };
 
   useEffect(() => {
@@ -134,7 +175,13 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
           <div className="flex flex-col lg:flex-row h-full max-h-[90vh]">
             {/* Image Section */}
             <div className="lg:w-1/2 w-full relative">
-              <div className="relative aspect-[16/9] lg:aspect-auto h-64 lg:h-full">
+              <div 
+                className="relative aspect-[16/9] lg:aspect-auto h-64 lg:h-full cursor-pointer"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onClick={handleImageClick}
+              >
                 <Image
                   src={currentImage.imagePath}
                   alt={`${car.year} ${car.make} ${car.model}`}
@@ -143,6 +190,18 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
+                
+                {/* Photo Count Badge */}
+                {images.length > 1 && (
+                  <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+                    {images.length} 📷
+                  </div>
+                )}
+                
+                {/* Click to enlarge hint */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity">
+                  Fotoğrafı büyütmek için tıklayın
+                </div>
 
                 {/* Navigation Buttons */}
                 {images.length > 1 && (
@@ -195,7 +254,7 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
                     {car.make} {car.model}
                   </h2>
                   <p className="text-xl text-gray-600 mb-4">
-                    {car.year} • {car.mileage.toLocaleString()} km
+                    {car.year} • {car.mileage ? car.mileage.toLocaleString() : 'N/A'} km
                   </p>
                   <div className="text-3xl font-bold text-amber-600">{formatPrice(car.price)}</div>
                 </div>
@@ -209,7 +268,7 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 text-center">
                     <Gauge className="h-6 w-6 text-amber-500 mx-auto mb-2" />
-                    <div className="text-lg font-semibold text-gray-900">{car.mileage.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-gray-900">{car.mileage ? car.mileage.toLocaleString() : 'N/A'}</div>
                     <div className="text-sm text-gray-600">Kilometre</div>
                   </div>
                 </div>
@@ -261,6 +320,25 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
                   </div>
                 </div>
 
+                {/* Car Description */}
+                {car.translations && car.translations.length > 0 && car.translations[0].description && (
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-gray-900">Açıklama</h3>
+                    <div 
+                      className="text-gray-700 text-sm leading-relaxed max-h-24 overflow-hidden relative"
+                      dir={locale === 'ar' ? 'rtl' : 'ltr'}
+                      dangerouslySetInnerHTML={FrontendXSSProtection.createSafeHTML(
+                        (car.translations[0].description.length > 150 
+                          ? `${car.translations[0].description.substring(0, 150)}...` 
+                          : car.translations[0].description).replace(/\n/g, '<br>')
+                      )}
+                    />
+                    {car.translations[0].description.length > 150 && (
+                      <div className="absolute bottom-0 right-0 bg-gradient-to-t from-white to-transparent h-6 w-full"></div>
+                    )}
+                  </div>
+                )}
+
                 {/* Actions */}
                 <div className="space-y-4">
                   <div className="flex space-x-3">
@@ -309,6 +387,20 @@ export function QuickViewModal({ car, isOpen, onClose, locale }: QuickViewModalP
           {/* End Wrapper */}
         </div>
       </div>
+
+      {/* Photo Modal */}
+      {images.length > 0 && (
+        <PhotoModal
+          isOpen={showPhotoModal}
+          onClose={() => setShowPhotoModal(false)}
+          images={images.map(img => ({
+            imagePath: img.imagePath,
+            alt: `${car.year} ${car.make} ${car.model}`
+          }))}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+        />
+      )}
     </div>
   );
 }

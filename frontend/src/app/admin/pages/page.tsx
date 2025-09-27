@@ -456,25 +456,11 @@ export default function AdminPagesPage() {
       <header className="bg-prestige-card shadow-prestige-lg border-b border-prestige-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex justify-between items-center py-8">
-            <div className="flex items-center space-x-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-prestige-gold/20 to-prestige-gold-light/20 rounded-2xl blur-sm"></div>
-                <div className="relative bg-prestige-card p-3 rounded-2xl shadow-prestige-sm">
-                  <Image
-                    src="/logo.png"
-                    alt="Mustafa Cangil Auto Trading Ltd."
-                    width={100}
-                    height={66}
-                    className="h-14 w-auto"
-                  />
-                </div>
-              </div>
-              <div>
-                <h1 className="text-4xl font-prestige-sans font-bold text-prestige-black prestige-text-glow">
-                  Pages Management
-                </h1>
-                <p className="text-lg text-prestige-gray font-prestige-sans">Manage and edit your website pages and sections</p>
-              </div>
+            <div>
+              <h1 className="text-4xl font-prestige-sans font-bold text-prestige-black prestige-text-glow">
+                Pages Management
+              </h1>
+              <p className="text-lg text-prestige-gray font-prestige-sans">Manage and edit your website pages and sections</p>
             </div>
             <div className="flex items-center space-x-4">
               <Link

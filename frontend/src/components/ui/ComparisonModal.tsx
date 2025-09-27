@@ -3,6 +3,7 @@
 import { X, Trash2, ArrowRight, Phone, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface Car {
   id: number;
@@ -49,17 +50,13 @@ export function ComparisonModal({ cars, isOpen, onClose, onRemoveCar, locale }: 
     }).format(price);
   };
 
-  const getImageUrl = (car: Car) => {
+  const getCarImageUrl = (car: Car) => {
     if (car.coverImage) {
-      return car.coverImage.startsWith('http')
-        ? car.coverImage
-        : `http://localhost:3001${car.coverImage}`;
+      return getImageUrl(car.coverImage);
     }
     if (car.images && car.images.length > 0) {
       const mainImage = car.images.find(img => img.isMain) || car.images[0];
-      return mainImage.imagePath.startsWith('http')
-        ? mainImage.imagePath
-        : `http://localhost:3001${mainImage.imagePath}`;
+      return getImageUrl(mainImage.imagePath);
     }
     return '/cars/placeholder.svg';
   };
@@ -125,7 +122,7 @@ export function ComparisonModal({ cars, isOpen, onClose, onRemoveCar, locale }: 
                           <th key={car.id} className="px-6 py-4 text-center align-top">
                             <div className="relative aspect-[4/3] mb-2 rounded-lg overflow-hidden w-48 mx-auto">
                               <Image
-                                src={getImageUrl(car)}
+                                src={getCarImageUrl(car)}
                                 alt={`${car.year} ${car.make} ${car.model}`}
                                 fill
                                 className="object-cover"

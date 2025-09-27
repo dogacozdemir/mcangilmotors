@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '@/lib/api';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { getImageUrl } from '@/lib/urlUtils';
 
 interface FeaturedCar {
   id: number;
@@ -90,7 +91,8 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
     setCurrentCarIndex((prev) => (prev - 1 + featuredCars.length) % featuredCars.length);
   };
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null) => {
+    if (!price) return 'Fiyat Belirtilmemiş';
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'GBP',
@@ -112,7 +114,7 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden py-16 sm:py-20 lg:py-24">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-orange-500/10"></div>
@@ -127,7 +129,7 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Left Side - Content */}
           <motion.div 
             className="text-white"
@@ -154,41 +156,6 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
               {t('home.hero.subtitle')}
             </motion.p>
 
-            {/* Quick Links */}
-            <motion.div 
-              className="mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href={`/${locale}/inventory`}
-                  className="inline-flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-amber-500/30"
-                >
-                  <Car className="w-4 h-4" />
-                  Tüm Araçlar
-                </Link>
-                <Link
-                  href={`/${locale}/sold-cars`}
-                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-white/20"
-                >
-                  Satılan Araçlar
-                </Link>
-                <Link
-                  href={`/${locale}/incoming-cars`}
-                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-white/20"
-                >
-                  Gelen Araçlar
-                </Link>
-                <Link
-                  href={`/${locale}/blog`}
-                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-white/20"
-                >
-                  Blog
-                </Link>
-              </div>
-            </motion.div>
 
             {/* Search Bar */}
             <motion.div 
@@ -217,19 +184,19 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
 
             {/* CTA Buttons */}
             <motion.div 
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
-              <Link href={`/${locale}/inventory`}>
-                <Button className="bg-amber-400 hover:bg-amber-500 text-gray-900 px-8 py-4 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                  <Car className="mr-2 h-5 w-5" />
+              <Link href={`/${locale}/inventory`} className="flex-1 sm:flex-none">
+                <Button className="w-full sm:w-auto bg-amber-400 hover:bg-amber-500 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                  <Car className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   {t('home.hero.viewAllCars')}
                 </Button>
               </Link>
-              <Link href={`/${locale}/about`}>
-                <Button className="bg-amber-400 hover:bg-amber-500 text-gray-900 px-8 py-4 text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+              <Link href={`/${locale}/about`} className="flex-1 sm:flex-none">
+                <Button className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-2xl border border-white/20 hover:border-white/30 transition-all duration-300">
                   {t('home.hero.aboutUs')}
                 </Button>
               </Link>
@@ -259,9 +226,9 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
                       <OptimizedImage
                         src={
                           currentCar.coverImage ? 
-                            (currentCar.coverImage.startsWith('http') ? currentCar.coverImage : `http://localhost:3001${currentCar.coverImage}`) :
+                            getImageUrl(currentCar.coverImage) :
                           currentCar.images?.[0]?.imagePath ? 
-                            (currentCar.images[0].imagePath.startsWith('http') ? currentCar.images[0].imagePath : `http://localhost:3001${currentCar.images[0].imagePath}`) :
+                            getImageUrl(currentCar.images[0].imagePath) :
                           `/cars/${currentCar.make?.toLowerCase()}-${currentCar.model?.toLowerCase()}.jpg` ||
                           '/cars/placeholder.svg'
                         }
@@ -293,7 +260,7 @@ export function HeroSection({ description, viewAllText, contactText }: Props) {
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
-                        {currentCar.mileage.toLocaleString()} km
+                        {currentCar.mileage ? currentCar.mileage.toLocaleString() : 'N/A'} km
                       </span>
                       {currentCar.bodyType && (
                         <span className="bg-white/10 px-2 py-1 rounded-full text-xs">
