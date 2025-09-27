@@ -166,7 +166,7 @@ async function main() {
             {
               lang: 'tr',
               title: 'Toyota Corolla 2021',
-              description: 'Güvenilir sedan, 2021 model Toyota Corolla. Düşük kilometreli, ekonomik.',
+              description: '2021 model Toyota Corolla, güvenilirlik ve ekonomik yakıt tüketimi ile öne çıkan premium sedan modelidir. Araç, modern tasarımı ve konforlu iç mekanı ile dikkat çeker. Hibrit teknoloji sayesinde şehir içi sürüşte minimum yakıt tüketimi sağlar. Otomatik şanzıman ile sürüş kolaylığı sunar. ABS, ESP, hava yastıkları gibi güvenlik özellikleri standarttır. Klima, elektrikli camlar, merkezi kilit gibi konfor özellikleri mevcuttur. Tek elden, düzenli bakımlı, kazasız araçtır.',
               seoTitle: 'Toyota Corolla 2021 - Mustafa Cangil Auto Trading Ltd.',
               seoDescription: '2021 model Toyota Corolla güvenilir sedan. Düşük kilometreli, ekonomik araç.',
               seoKeywords: 'toyota,corolla,2021,sedan,ekonomik'
@@ -174,7 +174,7 @@ async function main() {
             {
               lang: 'en',
               title: 'Toyota Corolla 2021',
-              description: 'Reliable sedan, 2021 Toyota Corolla model. Low mileage, economical.',
+              description: 'The 2021 Toyota Corolla is a premium sedan that stands out with its reliability and economical fuel consumption. The vehicle attracts attention with its modern design and comfortable interior. Thanks to hybrid technology, it provides minimum fuel consumption in city driving. It offers driving ease with automatic transmission. Safety features such as ABS, ESP, airbags are standard. Comfort features such as air conditioning, electric windows, central locking are available. Single owner, regularly maintained, accident-free vehicle.',
               seoTitle: 'Toyota Corolla 2021 - Mustafa Cangil Auto Trading Ltd.',
               seoDescription: '2021 Toyota Corolla reliable sedan. Low mileage, economical vehicle.',
               seoKeywords: 'toyota,corolla,2021,sedan,economical'
@@ -182,7 +182,7 @@ async function main() {
             {
               lang: 'ar',
               title: 'Toyota Corolla 2021',
-              description: 'سيارة سيدان موثوقة، موديل Toyota Corolla 2021. مسافة قليلة، اقتصادية.',
+              description: 'تويوتا كورولا 2021 هي سيارة سيدان مميزة تتميز بالموثوقية والاستهلاك الاقتصادي للوقود. تجذب السيارة الانتباه بتصميمها العصري والداخلية المريحة. بفضل التكنولوجيا الهجينة، توفر استهلاك وقود أدنى في القيادة الحضرية. توفر سهولة القيادة مع ناقل حركة أوتوماتيكي. الميزات الأمنية مثل ABS و ESP والوسائد الهوائية معيارية. الميزات المريحة مثل التكييف والنوافذ الكهربائية والقفل المركزي متوفرة. مالك واحد، صيانة منتظمة، مركبة خالية من الحوادث.',
               seoTitle: 'Toyota Corolla 2021 - Mustafa Cangil Auto Trading Ltd.',
               seoDescription: 'سيارة سيدان موثوقة Toyota Corolla 2021. مسافة قليلة، اقتصادية.',
               seoKeywords: 'toyota,corolla,2021,sedan,اقتصادية'
@@ -190,7 +190,7 @@ async function main() {
             {
               lang: 'ru',
               title: 'Toyota Corolla 2021',
-              description: 'Надежный седан, Toyota Corolla 2021 года. Низкий пробег, экономичный.',
+              description: 'Toyota Corolla 2021 года - это премиальный седан, который выделяется надежностью и экономичным расходом топлива. Автомобиль привлекает внимание современным дизайном и комфортным салоном. Благодаря гибридной технологии обеспечивает минимальный расход топлива в городском движении. Обеспечивает легкость вождения с автоматической коробкой передач. Функции безопасности, такие как ABS, ESP, подушки безопасности, являются стандартными. Комфортные функции, такие как кондиционер, электрические стеклоподъемники, центральный замок, доступны. Один владелец, регулярное обслуживание, автомобиль без аварий.',
               seoTitle: 'Toyota Corolla 2021 - Mustafa Cangil Auto Trading Ltd.',
               seoDescription: 'Надежный седан Toyota Corolla 2021 года. Низкий пробег, экономичный.',
               seoKeywords: 'toyota,corolla,2021,седан,экономичный'

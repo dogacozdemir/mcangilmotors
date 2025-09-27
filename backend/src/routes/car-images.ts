@@ -206,6 +206,66 @@ router.post('/:carId/gallery-images', upload.array('images', 10), async (req, re
   }
 });
 
+// Batch upload gallery images
+router.post('/:carId/gallery/batch', upload.array('images', 20), async (req, res) => {
+  try {
+    const { carId } = req.params;
+    const files = req.files as Express.Multer.File[];
+    
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No image files provided' });
+    }
+
+    // Check if car exists
+    const car = await prisma.car.findUnique({
+      where: { id: parseInt(carId) }
+    });
+
+    if (!car) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+
+    const uploadedImages = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const originalPath = file.path;
+      const outputDir = path.join(process.cwd(), 'public', 'uploads', 'cars', 'optimized');
+      const optimizedPaths = await optimizeCarImage(originalPath, outputDir, file.filename);
+
+      // Create car image record
+      const carImage = await prisma.carImage.create({
+        data: {
+          carId: parseInt(carId),
+          imagePath: optimizedPaths.large,
+          isMain: false,
+          sortOrder: i,
+          altText: `${car.make} ${car.model} - Gallery Image ${i + 1}`
+        }
+      });
+
+      uploadedImages.push({
+        id: carImage.id,
+        imagePath: optimizedPaths.large,
+        sortOrder: carImage.sortOrder,
+        altText: carImage.altText
+      });
+
+      // Clean up original file
+      cleanupTempFiles(originalPath);
+    }
+
+    res.json({
+      success: true,
+      message: 'Gallery images uploaded successfully',
+      images: uploadedImages
+    });
+  } catch (error) {
+    console.error('Error uploading gallery images batch:', error);
+    res.status(500).json({ error: 'Failed to upload gallery images' });
+  }
+});
+
 // Reorder gallery images
 router.put('/:carId/reorder', async (req, res) => {
   try {

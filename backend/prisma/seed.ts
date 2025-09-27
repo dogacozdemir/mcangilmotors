@@ -824,6 +824,51 @@ async function main() {
 
   console.log('✅ About page sections created');
 
+  // Create main about page
+  await prisma.page.create({
+    data: {
+      slug: 'hakkimizda',
+      translations: {
+        create: [
+          {
+            lang: 'tr',
+            title: 'Hakkımızda',
+            content: 'Mustafa Cangil Auto Trading Ltd. olarak KKTC\'de 5 yılı aşkın süredir güvenilir araç ticareti yapıyoruz. Müşteri memnuniyeti odaklı hizmet anlayışımızla, kaliteli ve güvenilir araçları uygun fiyatlarla sunuyoruz.',
+            seoTitle: 'Hakkımızda - Mustafa Cangil Auto Trading Ltd.',
+            seoDescription: 'Mustafa Cangil Auto Trading Ltd. hakkında bilgi alın. KKTC\'de güvenilir araç ticareti.',
+            seoKeywords: 'hakkımızda,mustafa cangil motors,KKTC araç galerisi'
+          },
+          {
+            lang: 'en',
+            title: 'About Us',
+            content: 'As Mustafa Cangil Auto Trading Ltd., we have been providing reliable vehicle trading in Northern Cyprus for over 5 years. With our customer satisfaction-oriented service approach, we offer quality and reliable vehicles at affordable prices.',
+            seoTitle: 'About Us - Mustafa Cangil Auto Trading Ltd.',
+            seoDescription: 'Learn about Mustafa Cangil Auto Trading Ltd.. Reliable vehicle trading in Northern Cyprus.',
+            seoKeywords: 'about us,mustafa cangil motors,northern cyprus car gallery'
+          },
+          {
+            lang: 'ar',
+            title: 'معلومات عنا',
+            content: 'كشركة مصطفى جانجيل للتجارة السيارات المحدودة، نقوم بتجارة السيارات الموثوقة في شمال قبرص لأكثر من 5 سنوات. مع نهج خدمتنا الموجه نحو رضا العملاء، نقدم مركبات عالية الجودة وموثوقة بأسعار معقولة.',
+            seoTitle: 'معلومات عنا - مصطفى جانجيل موتورز',
+            seoDescription: 'تعرف على مصطفى جانجيل موتورز. تجارة السيارات الموثوقة في شمال قبرص.',
+            seoKeywords: 'معلومات عنا,مصطفى جانجيل موتورز,معرض السيارات شمال قبرص'
+          },
+          {
+            lang: 'ru',
+            title: 'О нас',
+            content: 'Как Mustafa Cangil Auto Trading Ltd., мы занимаемся надежной торговлей автомобилями в Северном Кипре уже более 5 лет. С нашим подходом к обслуживанию, ориентированным на удовлетворение клиентов, мы предлагаем качественные и надежные автомобили по доступным ценам.',
+            seoTitle: 'О нас - Mustafa Cangil Auto Trading Ltd.',
+            seoDescription: 'Узнайте о Mustafa Cangil Auto Trading Ltd.. Надежная торговля автомобилями в Северном Кипре.',
+            seoKeywords: 'о нас,mustafa cangil motors,автогалерея северный кипр'
+          }
+        ]
+      }
+    }
+  });
+
+  console.log('✅ Main about page created');
+
   // Create settings
   await prisma.setting.upsert({
     where: { id: 1 },

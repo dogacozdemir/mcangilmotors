@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import prisma from '../config/database';
-import { validateBlogPost, validateBlogTranslation, handleValidationErrors } from '../middleware/validation';
 
 const router = express.Router();
 
@@ -15,9 +14,7 @@ router.get('/', async (req, res) => {
         skip,
         take: Number(limit),
         include: {
-          translations: {
-            where: { lang: lang as string }
-          },
+          translations: true, // Get all translations, not just specific language
           images: true
         },
         orderBy: { createdAt: 'desc' }
@@ -68,30 +65,17 @@ router.get('/:slug', async (req, res) => {
 });
 
 // Create blog post
-router.post('/', validateBlogPost, handleValidationErrors, async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
-    const { slug, imgUrl, translations = {}, images = [] } = req.body;
+    console.log('Received blog data:', JSON.stringify(req.body, null, 2));
+    
+    const { slug, imgUrl } = req.body;
 
+    // Basit blog creation - sadece temel alanlar
     const post = await prisma.blogPost.create({
       data: {
-        slug,
-        imgUrl,
-        translations: {
-          create: Object.entries(translations).map(([lang, data]: [string, any]) => ({
-            lang,
-            title: data.title,
-            content: data.content,
-            seoTitle: data.seo_title,
-            seoDescription: data.seo_description,
-            seoKeywords: data.seo_keywords
-          }))
-        },
-        images: {
-          create: images.map((img: any) => ({
-            imagePath: img.imagePath,
-            isMain: img.isMain || false
-          }))
-        }
+        slug: slug || null,
+        imgUrl: imgUrl || null
       },
       include: {
         translations: true,
@@ -110,47 +94,65 @@ router.post('/', validateBlogPost, handleValidationErrors, async (req: Request, 
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { slug, imgUrl, translations = {}, images = [] } = req.body;
+    console.log(`Updating blog post ${id} with data:`, req.body);
+    
+    const { slug, imgUrl, translations } = req.body;
 
-    // Delete existing translations and images
-    await Promise.all([
-      prisma.blogTranslation.deleteMany({
-        where: { postId: Number(id) }
-      }),
-      prisma.blogImage.deleteMany({
-        where: { postId: Number(id) }
-      })
-    ]);
-
-    const post = await prisma.blogPost.update({
-      where: { id: Number(id) },
-      data: {
-        slug,
-        imgUrl,
-        translations: {
-          create: Object.entries(translations).map(([lang, data]: [string, any]) => ({
-            lang,
-            title: data.title,
-            content: data.content,
-            seoTitle: data.seo_title,
-            seoDescription: data.seo_description,
-            seoKeywords: data.seo_keywords
-          }))
-        },
-        images: {
-          create: images.map((img: any) => ({
-            imagePath: img.imagePath,
-            isMain: img.isMain || false
-          }))
+    // Start transaction to update blog post and translations
+    const result = await prisma.$transaction(async (tx) => {
+      // Update blog post
+      const post = await tx.blogPost.update({
+        where: { id: Number(id) },
+        data: {
+          slug: slug || null,
+          imgUrl: imgUrl || null
         }
-      },
-      include: {
-        translations: true,
-        images: true
+      });
+
+      // Update translations if provided
+      if (translations) {
+        for (const [lang, translationData] of Object.entries(translations)) {
+          const data = translationData as any;
+          
+          await tx.blogTranslation.upsert({
+            where: {
+              postId_lang: {
+                postId: Number(id),
+                lang: lang
+              }
+            },
+            update: {
+              title: data.title || '',
+              content: data.content || '',
+              seoTitle: data.seo_title || data.seoTitle || '',
+              seoDescription: data.seo_description || data.seoDescription || '',
+              seoKeywords: data.seo_keywords || data.seoKeywords || ''
+            },
+            create: {
+              postId: Number(id),
+              lang: lang,
+              title: data.title || '',
+              content: data.content || '',
+              seoTitle: data.seo_title || data.seoTitle || '',
+              seoDescription: data.seo_description || data.seoDescription || '',
+              seoKeywords: data.seo_keywords || data.seoKeywords || ''
+            }
+          });
+        }
       }
+
+      // Return updated post with translations and images
+      return await tx.blogPost.findUnique({
+        where: { id: Number(id) },
+        include: {
+          translations: true,
+          images: true
+        }
+      });
     });
 
-    res.json(post);
+    console.log(`Successfully updated blog post ${id}`);
+    res.json(result);
   } catch (error) {
     console.error('Error updating blog post:', error);
     res.status(500).json({ error: 'Internal server error' });

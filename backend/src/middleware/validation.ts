@@ -21,16 +21,18 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 // Car validation rules
 export const validateCar: ValidationChain[] = [
   body('make')
+    .optional()
     .trim()
     .escape()
-    .isLength({ min: 1, max: 100 })
-    .withMessage('Make must be between 1 and 100 characters'),
+    .isLength({ max: 100 })
+    .withMessage('Make must be less than 100 characters'),
   
   body('model')
+    .optional()
     .trim()
     .escape()
-    .isLength({ min: 1, max: 100 })
-    .withMessage('Model must be between 1 and 100 characters'),
+    .isLength({ max: 100 })
+    .withMessage('Model must be less than 100 characters'),
   
   body('year')
     .optional()
@@ -82,6 +84,54 @@ export const validateCar: ValidationChain[] = [
     .isLength({ max: 50 })
     .withMessage('Body type must be less than 50 characters'),
   
+  body('plateStatus')
+    .optional()
+    .trim()
+    .escape()
+    .isLength({ max: 20 })
+    .withMessage('Plate status must be less than 20 characters'),
+  
+  body('coverImage')
+    .optional()
+    .trim()
+    .escape()
+    .isLength({ max: 500 })
+    .withMessage('Cover image must be less than 500 characters'),
+  
+  body('isSold')
+    .optional()
+    .isBoolean()
+    .withMessage('isSold must be a boolean value'),
+  
+  body('isIncoming')
+    .optional()
+    .isBoolean()
+    .withMessage('isIncoming must be a boolean value'),
+  
+  body('isReserved')
+    .optional()
+    .isBoolean()
+    .withMessage('isReserved must be a boolean value'),
+  
+  body('soldAt')
+    .optional()
+    .trim()
+    .escape()
+    .isISO8601()
+    .withMessage('Sold at must be a valid date'),
+  
+  body('soldPrice')
+    .optional()
+    .isDecimal({ decimal_digits: '0,2' })
+    .withMessage('Sold price must be a valid decimal number'),
+  
+  body('expectedArrival')
+    .optional()
+    .trim()
+    .escape()
+    .isISO8601()
+    .withMessage('Expected arrival must be a valid date'),
+  
   body('status')
     .optional()
     .trim()
@@ -92,7 +142,12 @@ export const validateCar: ValidationChain[] = [
   body('featured')
     .optional()
     .isBoolean()
-    .withMessage('Featured must be a boolean value')
+    .withMessage('Featured must be a boolean value'),
+  
+  body('categoryId')
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage('Category ID must be a positive integer')
 ];
 
 // Car translation validation rules
